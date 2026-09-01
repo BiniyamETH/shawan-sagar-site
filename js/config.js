@@ -11,6 +11,10 @@
         enquireBg: "assets/office.jpg"
    3. You can also paste any full web link (https://...).
 
+   Tip: keep every local image under ~1600px wide / 200KB. If you add a
+   "photo.webp" next to "photo.jpg", the site serves the smaller .webp
+   automatically (and falls back to the .jpg on older browsers).
+
    Leave a value as an empty string  ""  to fall back to the built-in
    animated background (used for heroVideo only).
    ============================================================================= */
@@ -31,23 +35,23 @@ window.SITE_MEDIA = {
   heroSlideSeconds: 7,
   heroClipSpeed: 1.5,
   heroSlides: [
-    { video: "https://assets.mixkit.co/videos/24945/24945-720.mp4", poster: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=80" }, // elegant houses on a quiet residential street
-    { video: "https://assets.mixkit.co/videos/20972/20972-720.mp4", poster: "https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?auto=format&fit=crop&w=1600&q=80" }, // grand stone & brick house
-    { video: "https://assets.mixkit.co/videos/25063/25063-720.mp4", poster: "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=1600&q=80" }, // charming house facade, warm tones
-    { video: "https://assets.mixkit.co/videos/27543/27543-720.mp4", poster: "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?auto=format&fit=crop&w=1600&q=80" }  // modern house exterior
+    { video: "assets/hero-1-residential-street.mp4", poster: "assets/hero-1-poster.jpg" }, // elegant houses on a quiet residential street
+    { video: "assets/hero-2-stone-brick-house.mp4", poster: "assets/hero-2-poster.jpg" }, // grand stone & brick house
+    { video: "assets/hero-3-house-facade.mp4",      poster: "assets/hero-3-poster.jpg" }, // charming house facade, warm tones
+    { video: "assets/hero-4-modern-exterior.mp4",   poster: "assets/hero-4-poster.jpg" }  // modern house exterior
   ],
   //  prefer stills? just drop in photo URLs instead, e.g.:
-  //  "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=1600&q=80",  // white 2-storey, big lawn
+  //  "assets/hero-fallback.jpg",  // white 2-storey, big lawn
 
   /* Only used if heroSlides above is emptied out: */
-  heroImage: "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=1600&q=80",
+  heroImage: "assets/hero-fallback.jpg",
   heroVideo: "",
 
   /* ---------------------------------------------------------------------------
      ENQUIRE — full-bleed background photo behind the "Get your free market
      evaluation" form. 1600 x 900 or wider; it sits dark and low-contrast.
      --------------------------------------------------------------------------- */
-  enquireBg: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1600&q=80",
+  enquireBg: "assets/enquire-bg.jpg",
 
   /* ---------------------------------------------------------------------------
      FORM — where the enquiry form sends to.

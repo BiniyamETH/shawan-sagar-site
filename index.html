@@ -246,7 +246,7 @@
         <header class="section__head" data-reveal>
           <p class="kicker">04 — Homes for sale</p>
           <h2 class="section__title">The homes Shawan is selling.</h2>
-          <p class="section__lead">Tap any home for the full photo set and details. These are sample listings — real ones go in <code>js/listings.js</code>.</p>
+          <p class="section__lead">Tap any home for the full photo set and details.</p>
         </header>
 
         <div class="listings" id="listings" data-reveal>
@@ -347,6 +347,10 @@
         </div>
 
         <form class="enquire__form" id="enquireForm" action="mailto:Infodhakaauto@gmail.com" method="post" enctype="text/plain" novalidate data-reveal>
+          <div class="hp-field" aria-hidden="true">
+            <label for="f-company">Company</label>
+            <input id="f-company" name="company" type="text" tabindex="-1" autocomplete="off" />
+          </div>
           <div class="field">
             <label for="f-name">Name</label>
             <input id="f-name" name="name" type="text" autocomplete="name" placeholder="Your name" required />

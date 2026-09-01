@@ -36,3 +36,10 @@ edit them visually through `admin.html`.
 | enquireBg   | .jpg   | 1600×900 or wider | sits dark and low-contrast behind the form |
 
 Any `https://` link works too — you don't have to download files locally.
+
+## Faster loading (optional)
+
+Keep each image under ~1600px wide and ~200 KB. If you drop a `photo.webp`
+next to a local `photo.jpg`, the site automatically serves the smaller `.webp`
+to browsers that support it and falls back to the `.jpg` everywhere else — you
+still only reference the `.jpg` in `config.js` / `listings.js`.

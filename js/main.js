@@ -10,6 +10,20 @@
   var $  = function (s, c) { return (c || document).querySelector(s); };
   var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
 
+  // Run an init block in isolation: if one feature throws (an element missing on
+  // some page, an API an old in-app browser doesn't support), the rest still boot.
+  function safe(fn, label) {
+    try { fn(); }
+    catch (e) { if (window.console) console.error("[" + (label || "init") + "] skipped:", e); }
+  }
+  // Last-resort net: log anything uncaught instead of dying silently.
+  window.addEventListener("error", function (e) {
+    if (window.console) console.error("caught:", e.message, "@", (e.filename || "") + ":" + (e.lineno || ""));
+  });
+  window.addEventListener("unhandledrejection", function (e) {
+    if (window.console) console.error("caught (promise):", e.reason);
+  });
+
   /* ---------------------------------------------------------------- year */
   var y = $("#year"); if (y) y.textContent = new Date().getFullYear();
 
@@ -26,6 +40,7 @@
       var el = $("#" + id);
       if (!el) return;
       if (url) {
+        url = asset(url);
         var probe = new Image();
         probe.onload = function () { el.style.backgroundImage = "url('" + url.replace(/'/g, "%27") + "')"; };
         probe.src = url;
@@ -43,7 +58,7 @@
       speed = (isFinite(speed) && speed > 0 ? speed : 1.5);   // video playback rate
       var first = list[0];
       var firstUrl = typeof first === "string" ? first : (first && (first.poster || first.image)) || "";
-      if (firstUrl) wrap.style.backgroundImage = "url('" + esc(firstUrl) + "')";
+      if (firstUrl) wrap.style.backgroundImage = "url('" + esc(asset(firstUrl)) + "')";
 
       var slides = [];
       list.forEach(function (item, i) {
@@ -56,10 +71,10 @@
           v.addEventListener("loadedmetadata", function () { try { this.playbackRate = speed; } catch (e) {} });
           v.addEventListener("error", function () {   // clip 404s / CDN blocks it — fall back to the still poster
             slide.classList.add("is-broken");
-            if (item.poster) slide.style.backgroundImage = "url('" + esc(item.poster) + "')";
+            if (item.poster) slide.style.backgroundImage = "url('" + esc(asset(item.poster)) + "')";
           });
           v.preload = i === 0 ? "auto" : "none";
-          if (item.poster) v.poster = item.poster;
+          if (item.poster) v.poster = asset(item.poster);
           slide.dataset.video = item.video;
           slide._video = v;
           if (i === 0) v.src = item.video;
@@ -67,7 +82,7 @@
         } else {
           var im = document.createElement("div");
           im.className = "hero__slide-img";
-          var u = esc(typeof item === "string" ? item : (item && item.image));
+          var u = esc(asset(typeof item === "string" ? item : (item && item.image) || ""));
           if (i === 0) im.style.backgroundImage = "url('" + u + "')";   // only slide 1 loads now
           else slide.dataset.img = u;                                   // the rest load just in time
           slide._img = im;
@@ -137,7 +152,7 @@
         var srcs = cfg.heroVideo;
         if (typeof srcs === "string") srcs = srcs ? [srcs] : [];
         if (Array.isArray(srcs) && srcs.length && !reduceMotion) {
-          if (cfg.heroImage) hv.poster = cfg.heroImage;
+          if (cfg.heroImage) hv.poster = asset(cfg.heroImage);
           var vi = 0, vSettled = false;
           var tryNextVideo = function () {
             if (vSettled) return;
@@ -183,7 +198,9 @@
         card.setAttribute("aria-label", "View " + (home.address || "listing"));
         card.innerHTML =
           '<div class="listing-card__img">' +
-            '<img loading="lazy" alt="' + esc(home.address || "") + '" src="' + esc(cover) + '" />' +
+            "<picture>" + webpSource(cover) +
+              '<img loading="lazy" alt="' + esc(home.address || "") + '" src="' + esc(cover) + '" />' +
+            "</picture>" +
             '<span class="listing-card__badge is-' + slug + '">' + esc(home.status || "For sale") + "</span>" +
             (count > 1 ? '<span class="listing-card__count">' + count + " photos</span>" : "") +
           "</div>" +
@@ -208,15 +225,42 @@
     return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
   }); }
 
+  // For a local ".jpg/.png" asset, the sibling ".webp" <source> markup; "" for
+  // remote URLs or non-images. If the .webp isn't there, <picture> ignores it.
+  function webpSource(u) {
+    if (!u || /^(https?:)?\/\//i.test(u) || /^data:/i.test(u)) return "";
+    var w = u.replace(/\.(jpe?g|png)(\?.*)?$/i, ".webp");
+    return w === u ? "" : '<source type="image/webp" srcset="' + esc(w) + '" />';
+  }
+
+  // Can this browser decode WebP? (used for CSS backgrounds and <video poster>,
+  // where <picture>'s automatic fallback isn't available). Computed on first use
+  // so source order vs. applyMedia() doesn't matter.
+  var _webpOk;
+  function webpOk() {
+    if (_webpOk === undefined) {
+      try { _webpOk = document.createElement("canvas").toDataURL("image/webp").lastIndexOf("data:image/webp", 0) === 0; }
+      catch (e) { _webpOk = false; }
+    }
+    return _webpOk;
+  }
+  // Swap a local "assets/x.jpg" for its "assets/x.webp" sibling when supported.
+  // Pair every local .jpg in config.js / listings.js with a same-name .webp.
+  function asset(p) {
+    return (webpOk() && /^assets\/[^?]+\.jpg$/i.test(p)) ? p.replace(/\.jpg$/i, ".webp") : p;
+  }
+
   /* ---------------------------------------------------------------- nav */
   var nav = $("#nav"), lastY = window.scrollY, ticking = false;
   function onScroll() {
     var sy = window.scrollY;
-    nav.classList.toggle("is-scrolled", sy > 20);
-    if (sy > lastY && sy > 400 && !document.body.classList.contains("menu-open")) {
-      nav.classList.add("is-hidden");
-    } else {
-      nav.classList.remove("is-hidden");
+    if (nav) {
+      nav.classList.toggle("is-scrolled", sy > 20);
+      if (sy > lastY && sy > 400 && !document.body.classList.contains("menu-open")) {
+        nav.classList.add("is-hidden");
+      } else {
+        nav.classList.remove("is-hidden");
+      }
     }
     lastY = sy;
 
@@ -368,8 +412,10 @@
   applyTilt($$("[data-tilt]"));
 
   /* ---------------------------------------------------------------- custom cursor */
-  if (finePointer && !reduceMotion) {
+  safe(function () {
+    if (!finePointer || reduceMotion) return;
     var dot = $("#cursorDot"), ring = $("#cursorRing");
+    if (!dot || !ring) return;
     var mx = innerWidth / 2, my = innerHeight / 2, rx = mx, ry = my;
     document.addEventListener("mousemove", function (e) {
       mx = e.clientX; my = e.clientY;
@@ -384,7 +430,7 @@
       el.addEventListener("mouseenter", function () { ring.classList.add("is-active"); });
       el.addEventListener("mouseleave", function () { ring.classList.remove("is-active"); });
     });
-  }
+  }, "cursor");
 
   /* ---------------------------------------------------------------- particle field */
   (function particles() {
@@ -495,8 +541,15 @@
         node = document.createElement("video");
         node.src = s.src; node.controls = true; node.loop = true; node.playsInline = true; node.preload = "none";
       } else {
-        node = document.createElement("img");
-        node.src = s.src; node.alt = home.address || ""; node.loading = i === 0 ? "eager" : "lazy";
+        var ws = webpSource(s.src);
+        if (ws) {
+          node = document.createElement("picture");
+          node.innerHTML = ws + '<img alt="' + esc(home.address || "") + '" src="' + esc(s.src) +
+            '" loading="' + (i === 0 ? "eager" : "lazy") + '" />';
+        } else {
+          node = document.createElement("img");
+          node.src = s.src; node.alt = home.address || ""; node.loading = i === 0 ? "eager" : "lazy";
+        }
       }
       cell.appendChild(node);
       track.appendChild(cell);
@@ -558,7 +611,8 @@
     carGo = null;
     document.body.classList.remove("menu-open");
   }
-  if (lb) {
+  safe(function () {
+    if (!lb || !lbClose) return;
     lbClose.addEventListener("click", closeLightbox);
     lb.addEventListener("click", function (e) { if (e.target === lb) closeLightbox(); });
     document.addEventListener("keydown", function (e) {
@@ -567,24 +621,35 @@
       else if (e.key === "ArrowLeft" && carGo) carGo(-1);
       else if (e.key === "ArrowRight" && carGo) carGo(1);
     });
-  }
+  }, "lightbox");
 
   /* ---------------------------------------------------------------- FAQ: close others */
-  $$(".qa").forEach(function (d) {
-    d.addEventListener("toggle", function () {
-      if (d.open) $$(".qa").forEach(function (o) { if (o !== d) o.open = false; });
+  safe(function () {
+    $$(".qa").forEach(function (d) {
+      d.addEventListener("toggle", function () {
+        if (d.open) $$(".qa").forEach(function (o) { if (o !== d) o.open = false; });
+      });
     });
-  });
+  }, "faq");
 
   /* ---------------------------------------------------------------- enquiry form */
+  safe(function () {
   var form = $("#enquireForm");
   if (form) {
     var statusEl = $("#enquireStatus");
     var setStatus = function (msg, kind) {
+      if (!statusEl) return;
       statusEl.textContent = msg || "";
       statusEl.className = "enquire__status" + (kind ? " is-" + kind : "");
     };
     var emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    // spam gate: a hidden honeypot field, plus "did a human actually interact,
+    // and not submit within a few seconds of the page loading?" Bots trip one of
+    // these; a real visitor filling a form this far down the page trips none.
+    var formReady = Date.now();
+    var touched = false;
+    form.addEventListener("focusin", function () { touched = true; });
 
     var mailFallback = function (d) {
       var body =
@@ -602,6 +667,16 @@
 
     form.addEventListener("submit", function (e) {
       e.preventDefault();
+
+      // honeypot filled, or no interaction at all, or submitted implausibly soon
+      // after load: acknowledge like a normal success, but send nothing.
+      var hp = $("#f-company");
+      if ((hp && hp.value.trim()) || !touched || (Date.now() - formReady) < 2500) {
+        form.reset();
+        setStatus("Thanks — Shawan will be in touch within one business day.", "ok");
+        return;
+      }
+
       var ok = true;
       [["f-name", false], ["f-email", true]].forEach(function (pair) {
         var el = $("#" + pair[0]);
@@ -640,5 +715,6 @@
       el.addEventListener("input", function () { el.parentElement.classList.remove("is-error"); });
     });
   }
+  }, "form");
 
 })();
