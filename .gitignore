@@ -6,3 +6,8 @@ __pycache__/
 listings.js.txt
 .DS_Store
 Thumbs.db
+
+# local scratch — candidate media & one-off dev tools, never deployed
+_cand/
+_postergrab.html
+_*/

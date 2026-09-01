@@ -103,7 +103,8 @@
 
   <div class="toast" id="toast"></div>
 
-  <script src="js/listings.js"></script>
+  <!-- load the current listings with a cache-buster so the editor always starts from the saved file -->
+  <script>document.write('<scr' + 'ipt src="js/listings.js?t=' + Date.now() + '"><\/scr' + 'ipt>');</script>
   <script>
   (function () {
     "use strict";
@@ -114,6 +115,8 @@
     var $$ = function (s, c) { return [].slice.call((c || document).querySelectorAll(s)); };
     var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+    // a walkthrough "video" only counts / plays if it's a direct clip file
+    function isPlayableVideo(u) { return /\.(mp4|webm|ogg|ogv|mov|m4v)(\?|#|$)/i.test(u || ""); }
 
     var samples = (window.SITE_LISTINGS || []).map(clone);
     var data = load();
@@ -124,14 +127,25 @@
       try { var d = JSON.parse(localStorage.getItem(KEY)); if (Array.isArray(d)) return d; } catch (e) {}
       return samples.length ? clone(samples) : [blank()];
     }
-    function save() { try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (e) {} meter(); }
+    var saveFailed = false;
+    function save() {
+      try { localStorage.setItem(KEY, JSON.stringify(data)); saveFailed = false; }
+      catch (e) {
+        // quota exceeded — big photos as data URLs blow past the ~5 MB localStorage limit.
+        // Warn loudly so edits aren't silently lost on the next reload.
+        if (!saveFailed) toast("⚠ Too big to auto-save a draft — use 💾 Save or 📋 Copy code now, or your latest edits will be lost on reload.");
+        saveFailed = true;
+      }
+      meter();
+    }
 
     function meter() {
       var bytes = new Blob([JSON.stringify(data)]).size;
       var mb = bytes / 1048576;
       var el = $("#meter");
-      el.textContent = data.length + (data.length === 1 ? " home · " : " homes · ") + mb.toFixed(2) + " MB file";
-      el.className = "meter" + (mb > 8 ? " huge" : mb > 4 ? " big" : "");
+      el.textContent = data.length + (data.length === 1 ? " home · " : " homes · ") + mb.toFixed(2) + " MB file"
+        + (saveFailed ? "  ⚠ not auto-saved" : "");
+      el.className = "meter" + (saveFailed || mb > 8 ? " huge" : mb > 4 ? " big" : "");
     }
     var toastT;
     function toast(msg) {
@@ -224,10 +238,10 @@
       body.appendChild(field("Price", input(home.price, function (v) { home.price = v; save(); renderPreview(); }, { placeholder: "$1,199,000" })));
       body.appendChild(field("Address", input(home.address, function (v) { home.address = v; top.querySelector("strong").textContent = (i + 1) + ". " + (v || "New home"); save(); renderPreview(); }, { placeholder: "42 Maple Grove Ave, North York" })));
       body.appendChild(field("Type", selectEl(TYPES.indexOf(home.type) > -1 ? home.type : "Detached", TYPES, function (v) { home.type = v; save(); renderPreview(); })));
-      body.appendChild(field("Bedrooms", input(home.beds, function (v) { home.beds = v.replace(/\D/g, ""); save(); renderPreview(); }, { type: "number", min: "0" })));
-      body.appendChild(field("Bathrooms", input(home.baths, function (v) { home.baths = v.replace(/\D/g, ""); save(); renderPreview(); }, { type: "number", min: "0" })));
+      body.appendChild(field("Bedrooms", input(home.beds, function (v) { v = v.replace(/\D/g, ""); home.beds = v === "" ? "" : +v; save(); renderPreview(); }, { type: "number", min: "0" })));
+      body.appendChild(field("Bathrooms", input(home.baths, function (v) { v = v.replace(/\D/g, ""); home.baths = v === "" ? "" : +v; save(); renderPreview(); }, { type: "number", min: "0" })));
       body.appendChild(field("Description", textarea(home.blurb, function (v) { home.blurb = v; save(); renderPreview(); }), true));
-      body.appendChild(field("Walkthrough video link (optional)", input(home.video, function (v) { home.video = v.trim(); save(); renderPreview(); }, { placeholder: "https://…mp4" }), true));
+      body.appendChild(field("Walkthrough video link — direct .mp4 file only (optional)", input(home.video, function (v) { home.video = v.trim(); save(); renderPreview(); }, { placeholder: "assets/walkthrough.mp4" }), true));
 
       /* photos */
       var pWrap = document.createElement("div");
@@ -312,7 +326,7 @@
       homes.forEach(function (home) {
         var slug = (home.status || "").toLowerCase().replace(/[^a-z]+/g, "-") || "listing";
         var cover = (home.photos && home.photos[0]) || "";
-        var count = (home.photos ? home.photos.length : 0) + (home.video ? 1 : 0);
+        var count = (home.photos ? home.photos.length : 0) + (isPlayableVideo(home.video) ? 1 : 0);
         var facts = [];
         if (home.beds) facts.push(home.beds + " bd");
         if (home.baths) facts.push(home.baths + " ba");
@@ -340,7 +354,7 @@
     var lb = $("#lightbox"), stage = $("#lightboxStage"), info = $("#lightboxInfo"), lbc = $("#lightboxClose");
     function openPreview(home) {
       var slides = (home.photos || []).slice();
-      if (home.video) slides.push(home.video);
+      if (isPlayableVideo(home.video)) slides.push(home.video);
       if (!slides.length) { toast("This home has no photos yet."); return; }
       var idx = 0;
       stage.innerHTML = '<div class="carousel"><div class="carousel__track"></div>' +
@@ -348,7 +362,7 @@
       var track = stage.querySelector(".carousel__track"), dots = stage.querySelector(".carousel__dots");
       slides.forEach(function (s, i) {
         var cell = document.createElement("div"); cell.className = "carousel__cell";
-        var isVid = /\.mp4($|\?)|\.webm($|\?)/i.test(s) || (home.video && s === home.video);
+        var isVid = isPlayableVideo(s);
         var n = document.createElement(isVid ? "video" : "img");
         n.src = s; if (isVid) { n.controls = true; n.loop = true; }
         cell.appendChild(n); track.appendChild(cell);
@@ -405,7 +419,17 @@
       rq.onsuccess = function () { res(rq.result); }; rq.onerror = function () { rej(rq.error); }; }); }); }
 
     function buildFileText() {
-      var clean = data.filter(function (h) { return h.price || h.address || (h.photos && h.photos.length); });
+      var clean = data
+        .filter(function (h) { return h.price || h.address || (h.photos && h.photos.length); })
+        .map(function (h) {
+          var o = {};
+          for (var k in h) {
+            if (!h.hasOwnProperty(k)) continue;
+            if ((k === "beds" || k === "baths") && (h[k] === "" || h[k] == null)) continue;  // drop blanks
+            o[k] = h[k];
+          }
+          return o;
+        });
       return "/* The homes Shawan is selling. Edited in admin.html — this is the site's js/listings.js */\n" +
              "window.SITE_LISTINGS = " + JSON.stringify(clean, null, 2) + ";\n";
     }

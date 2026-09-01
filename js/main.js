@@ -24,6 +24,16 @@
     if (window.console) console.error("caught (promise):", e.reason);
   });
 
+  // FAILSAFE: content starts at opacity:0 and is revealed by JS. If anything
+  // below throws before the reveal observer is wired, force everything visible
+  // after a few seconds so the page can never be left blank.
+  setTimeout(function () {
+    try {
+      $$("[data-reveal]:not(.is-visible), [data-reveal-words]:not(.is-visible)")
+        .forEach(function (el) { el.classList.add("is-visible"); });
+    } catch (e) {}
+  }, 4000);
+
   /* ---------------------------------------------------------------- year */
   var y = $("#year"); if (y) y.textContent = new Date().getFullYear();
 
@@ -56,6 +66,13 @@
       var esc = function (u) { return String(u || "").replace(/'/g, "%27"); };
       var speed = parseFloat(cfg.heroClipSpeed);
       speed = (isFinite(speed) && speed > 0 ? speed : 1.5);   // video playback rate
+
+      // how long each slide stays on screen (used by the rotation AND the decode watchdog)
+      var secs = parseFloat(cfg.heroSlideSeconds);
+      var slideMs = (isFinite(secs) && secs > 0.25 ? secs : 3) * 1000;
+      // watchdog must fire well BEFORE the slide rotates away, or it never runs
+      var watchMs = Math.min(4500, Math.max(1500, slideMs - 600));
+
       var first = list[0];
       var firstUrl = typeof first === "string" ? first : (first && (first.poster || first.image)) || "";
       if (firstUrl) wrap.style.backgroundImage = "url('" + esc(asset(firstUrl)) + "')";
@@ -125,28 +142,39 @@
           s._watch = setTimeout(function () {
             if (s.classList.contains("is-active") && !s.classList.contains("is-broken") &&
                 s._video.readyState < 2 && s._fallback) s._fallback();
-          }, 7000);
+          }, watchMs);
         }
         s.classList.add("is-active");
       };
       activate(0);
 
       if (slides.length > 1 && !reduceMotion) {
-        var secs = parseFloat(cfg.heroSlideSeconds);
-        var ms = (isFinite(secs) && secs > 0.25 ? secs : 3) * 1000;
+        var ms = slideMs;
         // heavy cross-fade overlap so quick swaps read as a dissolve, never a hard cut
         var fade = Math.round(Math.min(1600, Math.max(ms * 0.8, 260)));
         // ken-burns zoom always runs long & slow, independent of swap speed — keeps it calm
         var ken = Math.max(ms * 3, 9000);
         wrap.style.setProperty("--slide-ms", ken + "ms");       // ken-burns zoom length
         wrap.style.setProperty("--fade-ms", fade + "ms");       // cross-fade length
-        setInterval(function () {
+        var advance = function () {
           var cur = slides[idx];
           cur.classList.remove("is-active");
           if (cur._video) cur._video.pause();
           idx = (idx + 1) % slides.length;
           activate(idx);
-        }, ms);
+        };
+        var heroTimer = setInterval(advance, ms);
+        // don't burn battery / decode video on a tab nobody is looking at
+        document.addEventListener("visibilitychange", function () {
+          if (document.hidden) {
+            clearInterval(heroTimer); heroTimer = null;
+            if (slides[idx] && slides[idx]._video) slides[idx]._video.pause();
+          } else if (!heroTimer) {
+            var cv = slides[idx] && slides[idx]._video;
+            if (cv) { var pr = cv.play(); if (pr && pr.catch) pr.catch(function () {}); }
+            heroTimer = setInterval(advance, ms);
+          }
+        });
       }
       return true;
     }
@@ -193,7 +221,7 @@
       listings.forEach(function (home, i) {
         var slug = (home.status || "").toLowerCase().replace(/[^a-z]+/g, "-") || "listing";
         var cover = (home.photos && home.photos[0]) || home.image || "";
-        var count = (home.photos ? home.photos.length : 0) + (home.video ? 1 : 0);
+        var count = (home.photos ? home.photos.length : 0) + (isPlayableVideo(home.video) ? 1 : 0);
         var facts = [];
         if (home.beds) facts.push(home.beds + " bd");
         if (home.baths) facts.push(home.baths + " ba");
@@ -234,6 +262,10 @@
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) {
     return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
   }); }
+
+  // true only for a direct video-file link — anything else (YouTube page, etc.)
+  // can't go in a <video> tag, so we don't count it or add a slide for it.
+  function isPlayableVideo(u) { return /\.(mp4|webm|ogg|ogv|mov|m4v)(\?|#|$)/i.test(u || ""); }
 
   // For a local ".jpg/.png" asset, the sibling ".webp" <source> markup; "" for
   // remote URLs or non-images. If the .webp isn't there, <picture> ignores it.
@@ -308,33 +340,37 @@
   }
 
   /* ---------------------------------------------------------------- word-split headline */
-  $$("[data-reveal-words]").forEach(function (el) {
-    var words = el.textContent.trim().split(/\s+/);
-    el.textContent = "";
-    words.forEach(function (w, i) {
-      var span = document.createElement("span");
-      span.className = "word";
-      span.style.setProperty("--w", i);
-      span.textContent = w;
-      el.appendChild(span);
-      if (i < words.length - 1) el.appendChild(document.createTextNode(" "));
+  safe(function () {
+    $$("[data-reveal-words]").forEach(function (el) {
+      var words = el.textContent.trim().split(/\s+/);
+      el.textContent = "";
+      words.forEach(function (w, i) {
+        var span = document.createElement("span");
+        span.className = "word";
+        span.style.setProperty("--w", i);
+        span.textContent = w;
+        el.appendChild(span);
+        if (i < words.length - 1) el.appendChild(document.createTextNode(" "));
+      });
     });
-  });
+  }, "word-split");
 
   /* ---------------------------------------------------------------- reveal on scroll */
   // Promote grouped items so each one reveals on its own as you scroll past,
   // instead of the whole block appearing at once.
-  ["#listings", ".statgrid", "#areaPills", ".contact__grid", ".faq__list", ".ticklist"].forEach(function (sel) {
-    $$(sel).forEach(function (parent) {
-      parent.removeAttribute("data-reveal");
-      Array.prototype.forEach.call(parent.children, function (child, i) {
-        child.setAttribute("data-reveal", "");
-        child.style.setProperty("--i", i % 8);
+  safe(function () {
+    ["#listings", ".statgrid", "#areaPills", ".contact__grid", ".faq__list", ".ticklist"].forEach(function (sel) {
+      $$(sel).forEach(function (parent) {
+        parent.removeAttribute("data-reveal");
+        Array.prototype.forEach.call(parent.children, function (child, i) {
+          child.setAttribute("data-reveal", "");
+          child.style.setProperty("--i", i % 8);
+        });
       });
     });
-  });
-  // steps already carry data-reveal — just give them a stagger index
-  $$(".steps .step").forEach(function (el, i) { el.style.setProperty("--i", i % 8); });
+    // steps already carry data-reveal — just give them a stagger index
+    $$(".steps .step").forEach(function (el, i) { el.style.setProperty("--i", i % 8); });
+  }, "reveal-promote");
 
   function revealNow(el) {
     if (el.classList.contains("is-visible")) return;
@@ -353,11 +389,13 @@
     });
   }
 
-  var revealEls = $$("[data-reveal]");
-  if (reduceMotion) {
-    revealEls.forEach(function (el) { el.classList.add("is-visible"); });
-    $$("[data-count]").forEach(runCount);
-  } else {
+  safe(function () {
+    var revealEls = $$("[data-reveal]");
+    if (reduceMotion) {
+      revealEls.forEach(function (el) { el.classList.add("is-visible"); });
+      $$("[data-count]").forEach(runCount);
+      return;
+    }
     if ("IntersectionObserver" in window) {
       var io = new IntersectionObserver(function (entries) {
         entries.forEach(function (e) { if (e.isIntersecting) { revealNow(e.target); io.unobserve(e.target); } });
@@ -368,7 +406,7 @@
     manualRevealCheck();
     [200, 600, 1500, 3000].forEach(function (t) { setTimeout(manualRevealCheck, t); });
     window.addEventListener("resize", manualRevealCheck, { passive: true });
-  }
+  }, "reveal-observer");
 
   /* ---------------------------------------------------------------- counters */
   function runCount(el) {
@@ -443,7 +481,7 @@
   }, "cursor");
 
   /* ---------------------------------------------------------------- particle field */
-  (function particles() {
+  safe(function particles() {
     var cv = $("#fxParticles");
     // skip on phones/tablets and small screens — saves battery, avoids scroll jank
     if (reduceMotion || !finePointer || window.innerWidth < 760) {
@@ -451,7 +489,8 @@
       return;
     }
     if (!cv) return;
-    var ctx = cv.getContext("2d");
+    var ctx = cv.getContext && cv.getContext("2d");
+    if (!ctx) { cv.style.display = "none"; return; }   // canvas unsupported / disabled
     var dpr = Math.min(2, window.devicePixelRatio || 1);
     var w, h, pts = [], mouse = { x: -9999, y: -9999 };
     var COUNT;
@@ -522,16 +561,17 @@
       requestAnimationFrame(draw);
     }
     draw();
-  })();
+  }, "particles");
 
   /* ---------------------------------------------------------------- listing popup + photo carousel */
   var lb = $("#lightbox"), stage = $("#lightboxStage"), lbInfo = $("#lightboxInfo"), lbClose = $("#lightboxClose");
-  var carGo = null;
+  var carGo = null, lbLastFocus = null;
 
   function openListing(home) {
     if (!lb) return;
     var slides = (home.photos || []).map(function (p) { return { type: "image", src: p }; });
-    if (home.video) slides.push({ type: "video", src: home.video });
+    // only embed a <video> for a direct clip file; any other link would just be a dead black slide
+    if (home.video && isPlayableVideo(home.video)) slides.push({ type: "video", src: home.video });
     if (!slides.length && home.image) slides.push({ type: "image", src: home.image });
     if (!slides.length) return;
 
@@ -606,10 +646,11 @@
       closeLightbox();
     });
 
+    lbLastFocus = document.activeElement;   // so focus can return here on close
     lb.classList.add("is-open");
     lb.setAttribute("aria-hidden", "false");
     document.body.classList.add("menu-open");
-    lbClose.focus();
+    if (lbClose) lbClose.focus();
   }
 
   function closeLightbox() {
@@ -620,6 +661,8 @@
     if (lbInfo) lbInfo.innerHTML = "";
     carGo = null;
     document.body.classList.remove("menu-open");
+    if (lbLastFocus && lbLastFocus.focus) { try { lbLastFocus.focus(); } catch (e) {} }
+    lbLastFocus = null;
   }
   safe(function () {
     if (!lb || !lbClose) return;
@@ -627,9 +670,18 @@
     lb.addEventListener("click", function (e) { if (e.target === lb) closeLightbox(); });
     document.addEventListener("keydown", function (e) {
       if (!lb.classList.contains("is-open")) return;
-      if (e.key === "Escape") closeLightbox();
-      else if (e.key === "ArrowLeft" && carGo) carGo(-1);
-      else if (e.key === "ArrowRight" && carGo) carGo(1);
+      if (e.key === "Escape") { closeLightbox(); return; }
+      if (e.key === "ArrowLeft" && carGo) { carGo(-1); return; }
+      if (e.key === "ArrowRight" && carGo) { carGo(1); return; }
+      if (e.key === "Tab") {   // keep keyboard focus inside the dialog while it's open
+        var f = $$('a[href], button, video, [tabindex]:not([tabindex="-1"])', lb)
+          .filter(function (el) { return el.offsetParent !== null; });
+        if (!f.length) return;
+        var first = f[0], last = f[f.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+        else if (!lb.contains(document.activeElement)) { e.preventDefault(); first.focus(); }
+      }
     });
   }, "lightbox");
 
@@ -659,7 +711,18 @@
     // these; a real visitor filling a form this far down the page trips none.
     var formReady = Date.now();
     var touched = false;
-    form.addEventListener("focusin", function () { touched = true; });
+    var markTouched = function () { touched = true; };
+    // autofill / paste / touch keyboards don't always fire "focusin" — watch input too
+    form.addEventListener("focusin", markTouched);
+    form.addEventListener("input", markTouched);
+    form.addEventListener("change", markTouched);
+
+    // deep-linked from a listing on another page: contact.html?re=<address> → prefill the area
+    try {
+      var re = new URLSearchParams(window.location.search).get("re");
+      var areaEl = $("#f-area");
+      if (re && areaEl && !areaEl.value) areaEl.value = re;
+    } catch (e) {}
 
     var mailFallback = function (d) {
       var body =
@@ -669,7 +732,7 @@
         "Looking to: " + d.intent + "\n" +
         "Area: " + (d.area || "—") + "\n\n" +
         (d.message || "");
-      window.location.href = "mailto:Infodhakaauto@gmail.com?subject=" +
+      window.location.href = "mailto:shawanibs@gmail.com?subject=" +
         encodeURIComponent("Free evaluation request — " + d.name) +
         "&body=" + encodeURIComponent(body);
       setStatus("Opening your email app to send the request…", "ok");
@@ -713,8 +776,11 @@
           headers: { "Accept": "application/json", "Content-Type": "application/json" },
           body: JSON.stringify(data)
         }).then(function (r) {
-          if (r.ok) { form.reset(); setStatus("Thanks — Shawan will be in touch within one business day.", "ok"); }
-          else { mailFallback(data); }
+          if (r.ok) {
+            form.reset();
+            setStatus("Thanks — Shawan will be in touch within one business day.", "ok");
+            if (document.getElementById("enquire")) window.location.href = "thank-you.html";
+          } else { mailFallback(data); }
         }).catch(function () { mailFallback(data); });
       } else {
         mailFallback(data);
