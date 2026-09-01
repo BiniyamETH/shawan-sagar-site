@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>Listings editor · Shawan Sagar</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    body{background:#05070e;color:#eaf0fb;font-family:'Inter',system-ui,sans-serif;line-height:1.55;padding:0 0 120px}
+    .wrap{max-width:1180px;margin:0 auto;padding:0 clamp(16px,4vw,40px)}
+    .adm-head{position:sticky;top:0;z-index:20;background:rgba(5,7,14,.92);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,.09);padding:16px 0}
+    .adm-head .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+    .adm-head h1{font-family:'Space Grotesk',sans-serif;font-size:1.15rem;margin-right:auto}
+    .adm-head h1 span{color:#8b94ab;font-weight:400;font-size:.85rem;display:block}
+    .b{display:inline-flex;align-items:center;gap:7px;padding:10px 16px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:#eaf0fb;font:inherit;font-size:.88rem;cursor:pointer;transition:.2s}
+    .b:hover{border-color:#37f0ff}
+    .b--go{background:linear-gradient(120deg,#37f0ff,#6d5cff);color:#05070e;border:0;font-weight:600}
+    .b--warn:hover{border-color:#ff6b8b;color:#ff6b8b}
+    .note{font-size:.82rem;color:#8b94ab;margin:14px 0 22px}
+    .note code{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);padding:1px 5px;border-radius:5px;font-size:.85em}
+    .meter{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:#8b94ab}
+    .meter.big{color:#ffbe5c}.meter.huge{color:#ff6b8b}
+
+    .row{border:1px solid rgba(255,255,255,.09);border-radius:16px;background:#0d1322;margin-bottom:18px;overflow:hidden}
+    .row__top{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.02)}
+    .row__top strong{font-family:'Space Grotesk',sans-serif}
+    .row__top .sp{margin-left:auto;display:flex;gap:6px}
+    .ic{width:32px;height:32px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:#eaf0fb;cursor:pointer;font-size:.9rem;line-height:1}
+    .ic:hover{border-color:#37f0ff}
+    .row__body{padding:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
+    .f{display:flex;flex-direction:column;gap:5px}
+    .f--wide{grid-column:1/-1}
+    .f label{font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:#8b94ab}
+    .f input,.f select,.f textarea{width:100%;padding:10px 12px;border-radius:9px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.12);color:#eaf0fb;font:inherit;font-size:.92rem}
+    .f input:focus,.f select:focus,.f textarea:focus{outline:none;border-color:#37f0ff}
+    .f textarea{resize:vertical;min-height:64px}
+    select option{background:#0d1322}
+
+    .photos{grid-column:1/-1}
+    .photos__grid{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0 10px}
+    .thumb{position:relative;width:132px;height:99px;border-radius:10px;overflow:hidden;border:1px solid rgba(255,255,255,.12);background:#05070e}
+    .thumb img{width:100%;height:100%;object-fit:cover}
+    .thumb__cover{position:absolute;top:6px;left:6px;font-family:'JetBrains Mono',monospace;font-size:.56rem;letter-spacing:.12em;background:#37f0ff;color:#05070e;padding:2px 6px;border-radius:5px}
+    .thumb__bar{position:absolute;left:0;right:0;bottom:0;display:flex;background:rgba(5,7,14,.72)}
+    .thumb__bar button{flex:1;border:0;background:none;color:#fff;font-size:.8rem;padding:5px 0;cursor:pointer}
+    .thumb__bar button:hover{background:rgba(55,240,255,.25)}
+    .add-ph{display:flex;gap:8px;flex-wrap:wrap}
+    .empty{padding:60px 20px;text-align:center;color:#8b94ab;border:1px dashed rgba(255,255,255,.15);border-radius:16px}
+
+    h2.sec{font-family:'Space Grotesk',sans-serif;font-size:1.05rem;margin:34px 0 14px;color:#8b94ab}
+    #preview .listings{margin-top:4px}
+    .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#0d1322;border:1px solid #37f0ff;color:#eaf0fb;padding:12px 18px;border-radius:10px;font-size:.88rem;z-index:60;opacity:0;transition:opacity .25s;pointer-events:none}
+    .toast.show{opacity:1}
+  </style>
+</head>
+<body>
+  <header class="adm-head">
+    <div class="wrap">
+      <h1>Listings editor <span>Not part of the public site — only you use this page</span></h1>
+      <span class="meter" id="meter"></span>
+      <button class="b" id="addBtn">+ Add a home</button>
+      <button class="b b--go" id="saveBtn">💾 Save</button>
+      <button class="b" id="copyBtn" title="Copy the file text to paste into js/listings.js">📋 Copy code</button>
+      <button class="b" id="saveAsBtn" title="Pick a different file to save into">Save to…</button>
+      <label class="b" style="cursor:pointer">Load a file…<input type="file" id="importInput" accept=".js,.json,.txt" hidden /></label>
+      <button class="b b--warn" id="resetBtn">Reset to samples</button>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <p class="note">
+      Fill in the homes below and add their photos. Photos you pick from your computer are shrunk and stored right in the file.<br />
+      <b>Two ways to save:</b><br />
+      · <b>💾 Save</b> — works when this page is opened through a local server (Live Server, or <code>localhost</code>). First time it
+        asks which file → pick your site's <code>js/listings.js</code>; after that it's one click, no download.<br />
+      · <b>📋 Copy code</b> — always works. It copies the file text. Open <code>js/listings.js</code> in Notepad or your editor,
+        select all, paste, save. (Use this if Save downloads a file and your antivirus complains — a downloaded <code>.js</code>
+        file always gets flagged as a precaution; it is not a virus, just your listings.)
+    </p>
+
+    <details id="codeBox" style="margin-bottom:20px">
+      <summary style="cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.8rem;color:#8b94ab">Show the file text (js/listings.js)</summary>
+      <textarea id="codeArea" readonly spellcheck="false"
+        style="width:100%;height:220px;margin-top:10px;padding:12px;border-radius:10px;background:#05070e;border:1px solid rgba(255,255,255,.12);color:#cdd5e6;font:12px/1.5 'JetBrains Mono',monospace;resize:vertical"></textarea>
+    </details>
+
+    <div id="editor"></div>
+
+    <h2 class="sec">Live preview — this is how the "Homes for sale" section will look</h2>
+    <div id="preview"></div>
+  </div>
+
+  <!-- reuse the site's popup for the preview -->
+  <div class="lightbox" id="lightbox" aria-hidden="true" role="dialog" aria-modal="true">
+    <div class="lightbox__panel">
+      <button class="lightbox__close" id="lightboxClose" aria-label="Close">✕</button>
+      <div class="lightbox__media" id="lightboxStage"></div>
+      <div class="lightbox__info" id="lightboxInfo"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="js/listings.js"></script>
+  <script>
+  (function () {
+    "use strict";
+    var KEY = "shawan.listings.draft.v1";
+    var STATUSES = ["For sale", "Sold", "Pending", "Leased"];
+    var TYPES = ["Detached", "Semi-detached", "Townhome", "Condo", "Bungalow", "Duplex", "Land", "Other"];
+    var $ = function (s, c) { return (c || document).querySelector(s); };
+    var $$ = function (s, c) { return [].slice.call((c || document).querySelectorAll(s)); };
+    var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
+
+    var samples = (window.SITE_LISTINGS || []).map(clone);
+    var data = load();
+
+    function clone(o) { return JSON.parse(JSON.stringify(o)); }
+    function blank() { return { status: "For sale", price: "", address: "", beds: "", baths: "", type: "Detached", blurb: "", photos: [], video: "" }; }
+    function load() {
+      try { var d = JSON.parse(localStorage.getItem(KEY)); if (Array.isArray(d)) return d; } catch (e) {}
+      return samples.length ? clone(samples) : [blank()];
+    }
+    function save() { try { localStorage.setItem(KEY, JSON.stringify(data)); } catch (e) {} meter(); }
+
+    function meter() {
+      var bytes = new Blob([JSON.stringify(data)]).size;
+      var mb = bytes / 1048576;
+      var el = $("#meter");
+      el.textContent = data.length + (data.length === 1 ? " home · " : " homes · ") + mb.toFixed(2) + " MB file";
+      el.className = "meter" + (mb > 8 ? " huge" : mb > 4 ? " big" : "");
+    }
+    var toastT;
+    function toast(msg) {
+      var t = $("#toast"); t.textContent = msg; t.classList.add("show");
+      clearTimeout(toastT); toastT = setTimeout(function () { t.classList.remove("show"); }, 2200);
+    }
+
+    /* ---------- image compression ---------- */
+    function fileToDataURL(file) {
+      return new Promise(function (resolve, reject) {
+        if (!/^image\//.test(file.type)) return reject(new Error("not an image"));
+        var img = new Image(), url = URL.createObjectURL(file);
+        img.onload = function () {
+          URL.revokeObjectURL(url);
+          var maxW = 1600, w = img.naturalWidth, h = img.naturalHeight;
+          if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
+          var c = document.createElement("canvas"); c.width = w; c.height = h;
+          c.getContext("2d").drawImage(img, 0, 0, w, h);
+          resolve(c.toDataURL("image/jpeg", 0.82));
+        };
+        img.onerror = function () { URL.revokeObjectURL(url); reject(new Error("bad image")); };
+        img.src = url;
+      });
+    }
+
+    /* ---------- render editor ---------- */
+    function render() {
+      var ed = $("#editor");
+      if (!data.length) {
+        ed.innerHTML = '<div class="empty">No homes yet. Click <b>+ Add a home</b> above.</div>';
+      } else {
+        ed.innerHTML = "";
+        data.forEach(function (home, i) { ed.appendChild(rowEl(home, i)); });
+      }
+      renderPreview();
+      save();
+      syncCode();
+    }
+    function syncCode() {
+      try { var el = $("#codeArea"); if (el && typeof buildFileText === "function") el.value = buildFileText(); } catch (e) {}
+    }
+
+    function field(label, node, wide) {
+      var f = document.createElement("div");
+      f.className = "f" + (wide ? " f--wide" : "");
+      var l = document.createElement("label"); l.textContent = label;
+      f.appendChild(l); f.appendChild(node); return f;
+    }
+    function input(val, on, attrs) {
+      var el = document.createElement("input"); el.value = val == null ? "" : val;
+      for (var k in (attrs || {})) el.setAttribute(k, attrs[k]);
+      el.addEventListener("input", function () { on(el.value); });
+      return el;
+    }
+    function selectEl(val, opts, on) {
+      var el = document.createElement("select");
+      opts.forEach(function (o) {
+        var op = document.createElement("option"); op.textContent = o; if (o === val) op.selected = true;
+        el.appendChild(op);
+      });
+      el.addEventListener("change", function () { on(el.value); });
+      return el;
+    }
+    function textarea(val, on) {
+      var el = document.createElement("textarea"); el.value = val || "";
+      el.addEventListener("input", function () { on(el.value); });
+      return el;
+    }
+
+    function rowEl(home, i) {
+      var row = document.createElement("div");
+      row.className = "row";
+
+      var top = document.createElement("div");
+      top.className = "row__top";
+      top.innerHTML = "<strong>" + (i + 1) + ". " + esc(home.address || home.price || "New home") + "</strong>";
+      var sp = document.createElement("div"); sp.className = "sp";
+      sp.appendChild(iconBtn("▲", "Move up", function () { move(i, -1); }));
+      sp.appendChild(iconBtn("▼", "Move down", function () { move(i, 1); }));
+      sp.appendChild(iconBtn("⧉", "Duplicate", function () { data.splice(i + 1, 0, clone(home)); render(); }));
+      sp.appendChild(iconBtn("✕", "Delete this home", function () {
+        if (confirm("Delete this home?")) { data.splice(i, 1); render(); }
+      }));
+      top.appendChild(sp);
+      row.appendChild(top);
+
+      var body = document.createElement("div");
+      body.className = "row__body";
+      body.appendChild(field("Status", selectEl(home.status || "For sale", STATUSES, function (v) { home.status = v; save(); renderPreview(); })));
+      body.appendChild(field("Price", input(home.price, function (v) { home.price = v; save(); renderPreview(); }, { placeholder: "$1,199,000" })));
+      body.appendChild(field("Address", input(home.address, function (v) { home.address = v; top.querySelector("strong").textContent = (i + 1) + ". " + (v || "New home"); save(); renderPreview(); }, { placeholder: "42 Maple Grove Ave, North York" })));
+      body.appendChild(field("Type", selectEl(TYPES.indexOf(home.type) > -1 ? home.type : "Detached", TYPES, function (v) { home.type = v; save(); renderPreview(); })));
+      body.appendChild(field("Bedrooms", input(home.beds, function (v) { home.beds = v.replace(/\D/g, ""); save(); renderPreview(); }, { type: "number", min: "0" })));
+      body.appendChild(field("Bathrooms", input(home.baths, function (v) { home.baths = v.replace(/\D/g, ""); save(); renderPreview(); }, { type: "number", min: "0" })));
+      body.appendChild(field("Description", textarea(home.blurb, function (v) { home.blurb = v; save(); renderPreview(); }), true));
+      body.appendChild(field("Walkthrough video link (optional)", input(home.video, function (v) { home.video = v.trim(); save(); renderPreview(); }, { placeholder: "https://…mp4" }), true));
+
+      /* photos */
+      var pWrap = document.createElement("div");
+      pWrap.className = "f f--wide photos";
+      var pl = document.createElement("label"); pl.textContent = "Photos — first one is the cover";
+      pWrap.appendChild(pl);
+      var grid = document.createElement("div");
+      grid.className = "photos__grid";
+      (home.photos || []).forEach(function (src, pi) {
+        var t = document.createElement("div"); t.className = "thumb";
+        var im = document.createElement("img"); im.src = src; im.alt = "";
+        im.onerror = function () { t.style.background = "linear-gradient(135deg,#37f0ff33,#6d5cff33)"; };
+        t.appendChild(im);
+        if (pi === 0) { var cv = document.createElement("span"); cv.className = "thumb__cover"; cv.textContent = "COVER"; t.appendChild(cv); }
+        var bar = document.createElement("div"); bar.className = "thumb__bar";
+        bar.appendChild(barBtn("★", "Make cover", function () { home.photos.splice(0, 0, home.photos.splice(pi, 1)[0]); render(); }));
+        bar.appendChild(barBtn("‹", "Move left", function () { if (pi > 0) { swap(home.photos, pi, pi - 1); render(); } }));
+        bar.appendChild(barBtn("›", "Move right", function () { if (pi < home.photos.length - 1) { swap(home.photos, pi, pi + 1); render(); } }));
+        bar.appendChild(barBtn("✕", "Remove", function () { home.photos.splice(pi, 1); render(); }));
+        t.appendChild(bar);
+        grid.appendChild(t);
+      });
+      pWrap.appendChild(grid);
+
+      var addRow = document.createElement("div");
+      addRow.className = "add-ph";
+      var fileLbl = document.createElement("label");
+      fileLbl.className = "b"; fileLbl.style.cursor = "pointer";
+      fileLbl.textContent = "＋ Add photos from computer";
+      var fi = document.createElement("input");
+      fi.type = "file"; fi.accept = "image/*"; fi.multiple = true; fi.hidden = true;
+      fi.addEventListener("change", function () {
+        var files = [].slice.call(fi.files); fi.value = "";
+        if (!files.length) return;
+        toast("Processing " + files.length + " photo" + (files.length > 1 ? "s" : "") + "…");
+        Promise.all(files.map(function (f) {
+          return fileToDataURL(f).catch(function () { return null; });
+        })).then(function (urls) {
+          urls.forEach(function (u) { if (u) home.photos.push(u); });
+          render(); toast("Added.");
+        });
+      });
+      fileLbl.appendChild(fi);
+      addRow.appendChild(fileLbl);
+
+      addRow.appendChild(iconTextBtn("＋ Add photo by link", function () {
+        var u = prompt("Paste an image link, or type a filename you put in the /assets folder\n(e.g. assets/42-maple-1.jpg)");
+        if (u && u.trim()) { home.photos.push(u.trim()); render(); }
+      }));
+      pWrap.appendChild(addRow);
+      body.appendChild(pWrap);
+
+      row.appendChild(body);
+      return row;
+    }
+
+    function iconBtn(txt, title, on) {
+      var b = document.createElement("button"); b.className = "ic"; b.textContent = txt; b.title = title;
+      b.addEventListener("click", on); return b;
+    }
+    function iconTextBtn(txt, on) {
+      var b = document.createElement("button"); b.className = "b"; b.textContent = txt;
+      b.addEventListener("click", on); return b;
+    }
+    function barBtn(txt, title, on) {
+      var b = document.createElement("button"); b.textContent = txt; b.title = title;
+      b.addEventListener("click", on); return b;
+    }
+    function swap(a, i, j) { var t = a[i]; a[i] = a[j]; a[j] = t; }
+    function move(i, d) {
+      var j = i + d; if (j < 0 || j >= data.length) return;
+      swap(data, i, j); render();
+    }
+
+    /* ---------- preview (uses the real site markup) ---------- */
+    function renderPreview() {
+      var box = $("#preview");
+      var homes = data.filter(function (h) { return (h.photos && h.photos.length) || h.price || h.address; });
+      if (!homes.length) { box.innerHTML = '<div class="empty">Add a home to see the preview.</div>'; return; }
+      box.innerHTML = '<div class="listings"></div>';
+      var grid = box.querySelector(".listings");
+      homes.forEach(function (home) {
+        var slug = (home.status || "").toLowerCase().replace(/[^a-z]+/g, "-") || "listing";
+        var cover = (home.photos && home.photos[0]) || "";
+        var count = (home.photos ? home.photos.length : 0) + (home.video ? 1 : 0);
+        var facts = [];
+        if (home.beds) facts.push(home.beds + " bd");
+        if (home.baths) facts.push(home.baths + " ba");
+        if (home.type) facts.push(esc(home.type));
+        var card = document.createElement("article");
+        card.className = "listing-card";
+        card.style.cursor = "pointer";
+        card.innerHTML =
+          '<div class="listing-card__img">' +
+            (cover ? '<img alt="" src="' + esc(cover) + '" />' : '<div style="width:100%;height:100%;background:linear-gradient(135deg,#37f0ff22,#6d5cff22)"></div>') +
+            '<span class="listing-card__badge is-' + slug + '">' + esc(home.status || "For sale") + "</span>" +
+            (count > 1 ? '<span class="listing-card__count">' + count + " photos</span>" : "") +
+          "</div>" +
+          '<div class="listing-card__body">' +
+            '<span class="listing-card__price">' + esc(home.price || "—") + "</span>" +
+            '<span class="listing-card__addr">' + esc(home.address || "") + "</span>" +
+            '<span class="listing-card__facts">' + facts.join(" · ") + "</span>" +
+          "</div>";
+        card.addEventListener("click", function () { openPreview(home); });
+        grid.appendChild(card);
+      });
+    }
+
+    /* minimal carousel popup for the preview */
+    var lb = $("#lightbox"), stage = $("#lightboxStage"), info = $("#lightboxInfo"), lbc = $("#lightboxClose");
+    function openPreview(home) {
+      var slides = (home.photos || []).slice();
+      if (home.video) slides.push(home.video);
+      if (!slides.length) { toast("This home has no photos yet."); return; }
+      var idx = 0;
+      stage.innerHTML = '<div class="carousel"><div class="carousel__track"></div>' +
+        (slides.length > 1 ? '<button class="carousel__nav carousel__nav--prev">‹</button><button class="carousel__nav carousel__nav--next">›</button><div class="carousel__dots"></div>' : "") + "</div>";
+      var track = stage.querySelector(".carousel__track"), dots = stage.querySelector(".carousel__dots");
+      slides.forEach(function (s, i) {
+        var cell = document.createElement("div"); cell.className = "carousel__cell";
+        var isVid = /\.mp4($|\?)|\.webm($|\?)/i.test(s) || (home.video && s === home.video);
+        var n = document.createElement(isVid ? "video" : "img");
+        n.src = s; if (isVid) { n.controls = true; n.loop = true; }
+        cell.appendChild(n); track.appendChild(cell);
+        if (dots) { var d = document.createElement("button"); d.className = "carousel__dot"; d.addEventListener("click", function () { go(i); }); dots.appendChild(d); }
+      });
+      function go(n) {
+        idx = (n + slides.length) % slides.length;
+        track.style.transform = "translateX(" + (-idx * 100) + "%)";
+        if (dots) $$(".carousel__dot", dots).forEach(function (d, i) { d.classList.toggle("is-active", i === idx); });
+      }
+      if (slides.length > 1) {
+        stage.querySelector(".carousel__nav--prev").addEventListener("click", function () { go(idx - 1); });
+        stage.querySelector(".carousel__nav--next").addEventListener("click", function () { go(idx + 1); });
+      }
+      go(0);
+      var rows = "";
+      [["Type", home.type], ["Bedrooms", home.beds], ["Bathrooms", home.baths]].forEach(function (r) {
+        if (r[1]) rows += "<div><dt>" + esc(r[0]) + "</dt><dd>" + esc(r[1]) + "</dd></div>";
+      });
+      var slug = (home.status || "").toLowerCase().replace(/[^a-z]+/g, "-") || "listing";
+      info.innerHTML =
+        '<span class="lightbox__tag is-' + slug + '">' + esc(home.status || "For sale") + "</span>" +
+        "<h3>" + esc(home.price || "—") + "</h3>" +
+        (home.address ? '<p class="listing-addr">' + esc(home.address) + "</p>" : "") +
+        (rows ? '<dl class="lightbox__meta">' + rows + "</dl>" : "") +
+        (home.blurb ? '<p class="lightbox__note">' + esc(home.blurb) + "</p>" : "");
+      lb.classList.add("is-open"); lb.setAttribute("aria-hidden", "false"); document.body.classList.add("menu-open");
+    }
+    function closeLb() { lb.classList.remove("is-open"); lb.setAttribute("aria-hidden", "true"); stage.innerHTML = ""; info.innerHTML = ""; document.body.classList.remove("menu-open"); }
+    lbc.addEventListener("click", closeLb);
+    lb.addEventListener("click", function (e) { if (e.target === lb) closeLb(); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape" && lb.classList.contains("is-open")) closeLb(); });
+
+    /* ---------- toolbar ---------- */
+    $("#addBtn").addEventListener("click", function () {
+      data.push(blank()); render();
+      window.scrollTo(0, document.body.scrollHeight);
+    });
+    /* ---------- save (writes straight into the file, or downloads as fallback) ---------- */
+    var fileHandle = null;
+    function idb() {
+      return new Promise(function (res, rej) {
+        var r = indexedDB.open("shawan-admin", 1);
+        r.onupgradeneeded = function () { r.result.createObjectStore("kv"); };
+        r.onsuccess = function () { res(r.result); };
+        r.onerror = function () { rej(r.error); };
+      });
+    }
+    function idbSet(k, v) { return idb().then(function (d) { return new Promise(function (res, rej) {
+      var t = d.transaction("kv", "readwrite"); t.objectStore("kv").put(v, k);
+      t.oncomplete = res; t.onerror = function () { rej(t.error); }; }); }); }
+    function idbGet(k) { return idb().then(function (d) { return new Promise(function (res, rej) {
+      var t = d.transaction("kv", "readonly"); var rq = t.objectStore("kv").get(k);
+      rq.onsuccess = function () { res(rq.result); }; rq.onerror = function () { rej(rq.error); }; }); }); }
+
+    function buildFileText() {
+      var clean = data.filter(function (h) { return h.price || h.address || (h.photos && h.photos.length); });
+      return "/* The homes Shawan is selling. Edited in admin.html — this is the site's js/listings.js */\n" +
+             "window.SITE_LISTINGS = " + JSON.stringify(clean, null, 2) + ";\n";
+    }
+    function downloadText(text) {
+      // download as .txt so antivirus doesn't flag a .js download; user renames it
+      var a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text], { type: "text/plain" }));
+      a.download = "listings.js.txt";
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);
+      toast("Saved as listings.js.txt — rename it to listings.js and put it in the js folder. (Or use “Copy code”.)");
+    }
+    function ensurePerm(h) {
+      if (!h.queryPermission) return Promise.resolve(true);
+      return h.queryPermission({ mode: "readwrite" }).then(function (p) {
+        if (p === "granted") return true;
+        return h.requestPermission({ mode: "readwrite" }).then(function (r) { return r === "granted"; });
+      });
+    }
+    function writeHandle(h, text) {
+      return h.createWritable().then(function (w) {
+        return w.write(text).then(function () { return w.close(); });
+      });
+    }
+    function pickFile() {
+      return window.showSaveFilePicker({
+        suggestedName: "listings.js",
+        types: [{ description: "JavaScript", accept: { "text/javascript": [".js"] } }]
+      }).then(function (h) { fileHandle = h; return idbSet("fh", h).catch(function () {}); });
+    }
+    function doSave(forcePick) {
+      var text = buildFileText();
+      if (!window.showSaveFilePicker) { downloadText(text); return; }
+      var chain = (forcePick || !fileHandle) ? pickFile() : Promise.resolve();
+      chain.then(function () {
+        if (!fileHandle) return;
+        return ensurePerm(fileHandle).then(function (ok) {
+          if (!ok) { toast("Permission was blocked — try “Save to…”."); return; }
+          return writeHandle(fileHandle, text).then(function () {
+            toast("Saved to " + fileHandle.name + "  ✓");
+          });
+        });
+      }).catch(function (e) {
+        if (e && e.name === "AbortError") return;      // user closed the picker
+        downloadText(text);                            // anything else → fall back
+      });
+    }
+    $("#saveBtn").addEventListener("click", function () { doSave(false); });
+    $("#saveAsBtn").addEventListener("click", function () { doSave(true); });
+    if (!window.showSaveFilePicker) { $("#saveBtn").textContent = "↓ Download listings.js"; $("#saveAsBtn").style.display = "none"; }
+
+    $("#copyBtn").addEventListener("click", function () {
+      var text = buildFileText();
+      var area = $("#codeArea");
+      area.value = text;
+      $("#codeBox").open = true;
+      function fallback() {
+        area.focus(); area.select();
+        try { document.execCommand("copy"); toast("Copied — paste it into js/listings.js"); }
+        catch (e) { toast("Select the text in the box below and copy it (Ctrl+C)."); }
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(
+          function () { toast("Copied — paste it into js/listings.js"); },
+          fallback
+        );
+      } else { fallback(); }
+    });
+    idbGet("fh").then(function (h) { if (h) fileHandle = h; }).catch(function () {});
+    window.addEventListener("keydown", function (e) {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") { e.preventDefault(); doSave(false); }
+    });
+    $("#resetBtn").addEventListener("click", function () {
+      if (!confirm("Replace everything with the original sample homes? Your current edits will be lost.")) return;
+      data = samples.length ? clone(samples) : [blank()];
+      render(); toast("Reset to samples.");
+    });
+    $("#importInput").addEventListener("change", function (e) {
+      var f = e.target.files[0]; e.target.value = "";
+      if (!f) return;
+      var r = new FileReader();
+      r.onload = function () {
+        var parsed = parseListings(String(r.result));
+        if (!parsed) { toast("Couldn't read that file."); return; }
+        data = parsed; render(); toast("Loaded " + parsed.length + " home" + (parsed.length === 1 ? "" : "s") + ".");
+      };
+      r.readAsText(f);
+    });
+    function parseListings(txt) {
+      try { var j = JSON.parse(txt); if (Array.isArray(j)) return j; } catch (e) {}
+      var m = txt.match(/\[[\s\S]*\]/);
+      if (m) { try { return JSON.parse(m[0]); } catch (e) {} }
+      try {
+        var fn = new Function("var window={};" + txt + ";return window.SITE_LISTINGS;");
+        var out = fn(); if (Array.isArray(out)) return out;
+      } catch (e) {}
+      return null;
+    }
+
+    render();
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shawan Sagar — Real Estate Sales Representative | HomeLife Today Realty</title>
+  <meta name="description" content="Shawan Sagar, Real Estate Sales Representative with HomeLife Today Realty Ltd., Brokerage. An expert, efficient &amp; experienced realtor serving Toronto and the GTA. Free, confidential market evaluations." />
+  <meta name="theme-color" content="#05070e" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%97%86%3C/text%3E%3C/svg%3E" />
+  <noscript><style>[data-reveal],[data-reveal-words] .word{opacity:1!important;transform:none!important;filter:none!important}.hero__video,.fx-particles{display:none}</style></noscript>
+</head>
+<body>
+  <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+  <canvas class="fx-particles" id="fxParticles" aria-hidden="true"></canvas>
+  <div class="fx-grid" aria-hidden="true"></div>
+  <div class="fx-aurora" aria-hidden="true"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
+  <div class="fx-noise" aria-hidden="true"></div>
+  <div class="cursor-dot" id="cursorDot" aria-hidden="true"></div>
+  <div class="cursor-ring" id="cursorRing" aria-hidden="true"></div>
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a href="index.html" class="brand" aria-label="Shawan Sagar — home">
+        <span class="brand__mark" aria-hidden="true">◆</span>
+        <span class="brand__text">Shawan <span>Sagar</span></span>
+      </a>
+      <nav class="nav__links" id="navLinks" aria-label="Primary">
+        <a href="what-i-do.html">What I Do</a><a href="how-it-works.html">How It Works</a><a href="about.html">About</a><a href="homes.html">Homes</a><a href="areas.html">Areas</a><a href="faq.html">FAQ</a><a href="contact.html">Contact</a>
+      </nav>
+      <a href="tel:+14168760773" class="btn btn--ghost nav__call" data-magnetic>
+        <span class="pulse-dot" aria-hidden="true"></span> Call 416.876.0773
+      </a>
+      <button class="nav__toggle" id="navToggle" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+  </header>
+  <main id="top">
+    <!-- ============ HERO ============ -->
+    <section class="hero" id="hero">
+      <!-- MEDIA SLOT: hero background — cross-fading slideshow of houses.
+           Edit the list  js/config.js -> heroSlides  (10 house photos / clips). -->
+      <div class="hero__slides" id="heroSlides" aria-hidden="true"></div>
+      <!-- fallback layers, only used if heroSlides is empty -->
+      <div class="hero__bg" id="heroBg" aria-hidden="true"></div>
+      <video class="hero__video" id="heroVideo" autoplay muted loop playsinline preload="auto" aria-hidden="true"></video>
+      <div class="hero__scrim" aria-hidden="true"></div>
+
+      <div class="container hero__inner">
+        <p class="eyebrow reveal" data-reveal>
+          <span class="eyebrow__line" aria-hidden="true"></span>
+          HomeLife Today Realty Ltd., Brokerage · Toronto
+        </p>
+
+        <h1 class="hero__title" data-reveal data-reveal-words>
+          An expert, efficient &amp; experienced realtor.
+        </h1>
+
+        <p class="hero__sub reveal" data-reveal>
+          <strong>Shawan Sagar</strong> — Real Estate Sales Representative
+        </p>
+
+        <a href="tel:+14168760773" class="hero__phone" data-reveal aria-label="Call 416 876 0773">
+          <span class="hero__phone-digits" id="heroPhone">416.876.0773</span>
+          <span class="hero__phone-note">Tap to call — free, confidential consultation</span>
+        </a>
+
+        <div class="hero__cta reveal" data-reveal>
+          <a href="#contact" class="btn btn--primary" data-magnetic>
+            Book a free consultation
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </a>
+          <a href="#services" class="btn btn--ghost" data-magnetic>What I do for you</a>
+        </div>
+
+        <ul class="hero__chips reveal" data-reveal>
+          <li><span aria-hidden="true">◇</span> Toronto &amp; GTA</li>
+          <li><span aria-hidden="true">◇</span> Free market evaluation</li>
+          <li><span aria-hidden="true">◇</span> 100% confidential</li>
+        </ul>
+      </div>
+
+      <a href="#services" class="hero__scroll" aria-label="Scroll to content">
+        <span class="hero__scroll-track"><span class="hero__scroll-thumb"></span></span>
+        Scroll
+      </a>
+    </section>
+
+    <!-- ============ MARQUEE ============ -->
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee__track">
+        <span>Buying</span><span aria-hidden="true">◆</span>
+        <span>Selling</span><span aria-hidden="true">◆</span>
+        <span>Negotiation</span><span aria-hidden="true">◆</span>
+        <span>Market evaluation</span><span aria-hidden="true">◆</span>
+        <span>Open houses</span><span aria-hidden="true">◆</span>
+        <span>Staging</span><span aria-hidden="true">◆</span>
+        <span>Toronto</span><span aria-hidden="true">◆</span>
+        <span>North York</span><span aria-hidden="true">◆</span>
+        <span>Scarborough</span><span aria-hidden="true">◆</span>
+        <span>Etobicoke</span><span aria-hidden="true">◆</span>
+        <span>Markham</span><span aria-hidden="true">◆</span>
+        <span>Mississauga</span><span aria-hidden="true">◆</span>
+      </div>
+      <div class="marquee__track" aria-hidden="true">
+        <span>Buying</span><span aria-hidden="true">◆</span>
+        <span>Selling</span><span aria-hidden="true">◆</span>
+        <span>Negotiation</span><span aria-hidden="true">◆</span>
+        <span>Market evaluation</span><span aria-hidden="true">◆</span>
+        <span>Open houses</span><span aria-hidden="true">◆</span>
+        <span>Staging</span><span aria-hidden="true">◆</span>
+        <span>Toronto</span><span aria-hidden="true">◆</span>
+        <span>North York</span><span aria-hidden="true">◆</span>
+        <span>Scarborough</span><span aria-hidden="true">◆</span>
+        <span>Etobicoke</span><span aria-hidden="true">◆</span>
+        <span>Markham</span><span aria-hidden="true">◆</span>
+        <span>Mississauga</span><span aria-hidden="true">◆</span>
+      </div>
+    </div>
+
+    <!-- ============ SERVICES / WHAT I DO ============ -->
+    <section class="section" id="services">
+      <div class="container">
+        <header class="section__head" data-reveal>
+          <p class="kicker">01 — What I do for you</p>
+          <h2 class="section__title">Whether you're buying or selling, you get a full plan.</h2>
+          <p class="section__lead">Every client gets a clear strategy from day one — not just a listing or a lockbox.</p>
+        </header>
+
+        <div class="split">
+          <article class="card card--tilt" data-reveal data-tilt>
+            <div class="card__glow" aria-hidden="true"></div>
+            <div class="card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="26" height="26"><path d="M3 11l9-7 9 7M5 10v10h14V10M9 20v-6h6v6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <h3>For Buyers</h3>
+            <ul class="ticklist">
+              <li>Ideal prices through adept negotiation</li>
+              <li>Unrivaled mortgage rates through trusted lenders</li>
+              <li>Confidential consultation &amp; market evaluation</li>
+              <li>First look at listings that actually fit your brief</li>
+            </ul>
+          </article>
+
+          <article class="card card--tilt" data-reveal data-tilt>
+            <div class="card__glow" aria-hidden="true"></div>
+            <div class="card__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="26" height="26"><path d="M4 20V8l8-5 8 5v12M4 20h16M9 20v-5h6v5M8 11h.01M12 11h.01M16 11h.01" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <h3>For Sellers</h3>
+            <ul class="ticklist">
+              <li>Multiple open houses</li>
+              <li>Flyers, feature sheets &amp; property websites</li>
+              <li>Community newspapers</li>
+              <li>Social media ads</li>
+              <li>Best marketing &amp; top negotiating for expected prices</li>
+            </ul>
+            <p class="card__note">*Staging available (conditions apply)</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PROCESS / HOW IT WORKS ============ -->
+    <section class="section section--alt" id="process">
+      <div class="container">
+        <header class="section__head" data-reveal>
+          <p class="kicker">02 — How it works</p>
+          <h2 class="section__title">Four straightforward steps.</h2>
+          <p class="section__lead">Whether you're listing your home or looking for your next one.</p>
+        </header>
+
+        <ol class="steps">
+          <li class="step" data-reveal>
+            <span class="step__num">01</span>
+            <div class="step__body">
+              <h3>Free consultation</h3>
+              <p>A confidential conversation about your goals, your timeline, and your budget — no obligation, no pressure.</p>
+            </div>
+          </li>
+          <li class="step" data-reveal>
+            <span class="step__num">02</span>
+            <div class="step__body">
+              <h3>Market evaluation</h3>
+              <p>A clear look at what comparable homes in your area are actually selling for, so your pricing is grounded in real numbers.</p>
+            </div>
+          </li>
+          <li class="step" data-reveal>
+            <span class="step__num">03</span>
+            <div class="step__body">
+              <h3>Strategy &amp; marketing</h3>
+              <p>Sellers get open houses, feature sheets, and online exposure. Buyers get first look at listings that fit and honest advice on each one.</p>
+            </div>
+          </li>
+          <li class="step" data-reveal>
+            <span class="step__num">04</span>
+            <div class="step__body">
+              <h3>Negotiation &amp; close</h3>
+              <p>Firm negotiation on your behalf, then guidance through offers, conditions, and paperwork right to closing day.</p>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ============ ABOUT ============ -->
+    <section class="section" id="about">
+      <div class="container about">
+        <div class="about__media" data-reveal data-tilt>
+          <!-- MEDIA SLOT: about portrait/image. Swap in js/config.js -> aboutImage -->
+          <div class="about__frame">
+            <img id="aboutImage" alt="Shawan Sagar, Real Estate Sales Representative" loading="lazy" />
+            <span class="about__scan" aria-hidden="true"></span>
+          </div>
+          <div class="about__badge" aria-hidden="true">
+            <span>HomeLife</span>
+            Today Realty
+          </div>
+        </div>
+
+        <div class="about__text">
+          <p class="kicker" data-reveal>03 — About</p>
+          <h2 class="section__title" data-reveal>Real estate, done properly.</h2>
+          <p data-reveal>Buying or selling a home is one of the biggest financial decisions most families ever make. Shawan works with buyers and sellers across Toronto and the GTA, backed by HomeLife's higher standards — with straight answers, strong negotiation, and marketing that actually reaches buyers.</p>
+          <p data-reveal>Consultations are always confidential and come with a market evaluation of your home at no cost.</p>
+
+          <div class="statgrid" data-reveal>
+            <div class="stat">
+              <span class="stat__value" data-count="10" data-suffix="+">10+</span>
+              <span class="stat__label">Areas served</span>
+            </div>
+            <div class="stat">
+              <span class="stat__value" data-count="4">4</span>
+              <span class="stat__label">Step process</span>
+            </div>
+            <div class="stat">
+              <span class="stat__value" data-count="100" data-suffix="%">100%</span>
+              <span class="stat__label">Confidential</span>
+            </div>
+            <div class="stat">
+              <span class="stat__value" data-count="0" data-prefix="$">$0</span>
+              <span class="stat__label">Cost to start</span>
+            </div>
+          </div>
+
+          <blockquote class="pullquote" data-reveal>
+            "Expert, efficient &amp; experienced — that's not a slogan, it's the standard for every client."
+            <cite>Shawan Sagar · Sales Representative</cite>
+          </blockquote>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ HOMES FOR SALE ============ -->
+    <section class="section section--alt" id="showcase">
+      <div class="container">
+        <header class="section__head" data-reveal>
+          <p class="kicker">04 — Homes for sale</p>
+          <h2 class="section__title">The homes Shawan is selling.</h2>
+          <p class="section__lead">Tap any home for the full photo set and details. These are sample listings — real ones go in <code>js/listings.js</code>.</p>
+        </header>
+
+        <div class="listings" id="listings" data-reveal>
+          <!-- Cards injected from js/config.js -> listings[] -->
+        </div>
+
+        <p class="muted-note" data-reveal><a href="homes.html">See all homes →</a></p>
+      </div>
+    </section>
+
+    <!-- ============ VALUE BAND ============ -->
+    <section class="valueband" id="evaluation">
+      <div class="container valueband__inner">
+        <div data-reveal>
+          <h2>What is your home worth today?</h2>
+          <p>Get a free, no-obligation market evaluation — usually the first thing worth knowing before you make any move.</p>
+        </div>
+        <a href="mailto:shawanibs@gmail.com?subject=Market%20evaluation%20request&amp;body=Hi%20Shawan%2C%20I%27d%20like%20a%20free%20market%20evaluation%20for%20my%20home%20at%3A%20"
+           class="btn btn--dark" data-magnetic data-reveal>Request an evaluation</a>
+      </div>
+    </section>
+
+    <!-- ============ AREAS ============ -->
+    <section class="section" id="areas">
+      <div class="container">
+        <header class="section__head" data-reveal>
+          <p class="kicker">05 — Areas served</p>
+          <h2 class="section__title">Toronto and the surrounding GTA.</h2>
+          <p class="section__lead">Don't see your area? Call and ask — it's likely covered.</p>
+        </header>
+
+        <ul class="pills" id="areaPills" data-reveal>
+          <li>Toronto</li>
+          <li>East York</li>
+          <li>Scarborough</li>
+          <li>North York</li>
+          <li>Etobicoke</li>
+          <li>Markham</li>
+          <li>Pickering</li>
+          <li>Ajax</li>
+          <li>Mississauga</li>
+          <li>Brampton</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ============ FAQ ============ -->
+    <section class="section section--alt" id="faq">
+      <div class="container faq">
+        <header class="section__head" data-reveal>
+          <p class="kicker">06 — Common questions</p>
+          <h2 class="section__title">Good things to know.</h2>
+        </header>
+
+        <div class="faq__list" data-reveal>
+          <details class="qa">
+            <summary>What does it cost to have a market evaluation done?<span class="qa__icon" aria-hidden="true"></span></summary>
+            <div class="qa__body"><p>Nothing. A market evaluation is free and comes with no obligation — it's simply a grounded look at what your home could sell for in today's market.</p></div>
+          </details>
+          <details class="qa">
+            <summary>I'm a first-time buyer. Where do I start?<span class="qa__icon" aria-hidden="true"></span></summary>
+            <div class="qa__body"><p>Start with a call. We'll talk through your budget and timeline, connect you with a trusted lender for a mortgage pre-approval, and then start looking at listings that genuinely fit your brief.</p></div>
+          </details>
+          <details class="qa">
+            <summary>How long does it take to sell a home?<span class="qa__icon" aria-hidden="true"></span></summary>
+            <div class="qa__body"><p>It depends on the area, the price, the condition of the home, and the season. The market evaluation gives you a realistic timeline before you list, and the marketing plan is built to shorten it.</p></div>
+          </details>
+          <details class="qa">
+            <summary>Is staging available?<span class="qa__icon" aria-hidden="true"></span></summary>
+            <div class="qa__body"><p>Yes — staging is available, with some conditions depending on the property and listing. We'll go over what makes sense for your home during the consultation.</p></div>
+          </details>
+          <details class="qa">
+            <summary>Do you help with mortgages?<span class="qa__icon" aria-hidden="true"></span></summary>
+            <div class="qa__body"><p>Shawan works with trusted lenders and can connect you with competitive mortgage rates. The lending itself is handled by the lender; the introduction and coordination are part of the service.</p></div>
+          </details>
+          <details class="qa">
+            <summary>Is my information kept private?<span class="qa__icon" aria-hidden="true"></span></summary>
+            <div class="qa__body"><p>Always. Every consultation and market evaluation is confidential.</p></div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ ENQUIRE / FORM ============ -->
+    <section class="section enquire" id="enquire">
+      <!-- MEDIA SLOT: background photo for this section. Swap in js/config.js -> enquireBg -->
+      <div class="enquire__bg" id="enquireBg" aria-hidden="true"></div>
+      <div class="container enquire__inner">
+        <div class="enquire__intro" data-reveal>
+          <p class="kicker">07 — Enquire</p>
+          <h2 class="section__title">Get your free market evaluation.</h2>
+          <p class="section__lead">Tell Shawan a little about your move. No obligation, and everything stays confidential.</p>
+          <ul class="enquire__points">
+            <li>A reply within one business day</li>
+            <li>Free, no-pressure consultation</li>
+            <li>Your details are never shared with anyone</li>
+          </ul>
+        </div>
+
+        <form class="enquire__form" id="enquireForm" action="mailto:shawanibs@gmail.com" method="post" enctype="text/plain" novalidate data-reveal>
+          <div class="field">
+            <label for="f-name">Name</label>
+            <input id="f-name" name="name" type="text" autocomplete="name" placeholder="Your name" required />
+          </div>
+          <div class="field">
+            <label for="f-email">Email</label>
+            <input id="f-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required />
+          </div>
+          <div class="field">
+            <label for="f-phone">Phone <span>(optional)</span></label>
+            <input id="f-phone" name="phone" type="tel" autocomplete="tel" placeholder="(416) 000-0000" />
+          </div>
+          <div class="field">
+            <label for="f-intent">I want to…</label>
+            <select id="f-intent" name="intent">
+              <option>Buy a home</option>
+              <option>Sell my home</option>
+              <option>Buy and sell</option>
+              <option>Just exploring</option>
+            </select>
+          </div>
+          <div class="field field--full">
+            <label for="f-area">Neighbourhood / area</label>
+            <input id="f-area" name="area" type="text" placeholder="e.g. North York, Scarborough, Markham…" />
+          </div>
+          <div class="field field--full">
+            <label for="f-msg">Anything else? <span>(optional)</span></label>
+            <textarea id="f-msg" name="message" rows="4" placeholder="Timeline, budget, questions…"></textarea>
+          </div>
+          <button type="submit" class="btn btn--primary" data-magnetic>
+            Request my free evaluation
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <p class="enquire__status" id="enquireStatus" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+
+    <!-- ============ CONTACT ============ -->
+    <section class="section contact" id="contact">
+      <div class="container">
+        <header class="section__head section__head--center" data-reveal>
+          <p class="kicker">08 — Contact</p>
+          <h2 class="section__title">Thinking of a move? Start with a call.</h2>
+          <p class="section__lead">Reach Shawan directly for a confidential consultation — no pressure, no obligation.</p>
+        </header>
+
+        <div class="contact__grid" data-reveal>
+          <a class="contact__card" href="tel:+14168760773" data-tilt>
+            <span class="contact__label">Direct</span>
+            <span class="contact__value">416.876.0773</span>
+            <span class="contact__cta">Tap to call →</span>
+          </a>
+          <a class="contact__card" href="mailto:shawanibs@gmail.com" data-tilt>
+            <span class="contact__label">Email</span>
+            <span class="contact__value">shawanibs@gmail.com</span>
+            <span class="contact__cta">Send a message →</span>
+          </a>
+          <div class="contact__card" data-tilt>
+            <span class="contact__label">Office</span>
+            <span class="contact__value">416.298.3200</span>
+            <span class="contact__cta">HomeLife Today Realty</span>
+          </div>
+          <div class="contact__card" data-tilt>
+            <span class="contact__label">Fax</span>
+            <span class="contact__value">416.298.3440</span>
+            <span class="contact__cta">Documents</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <section class="ctaband">
+    <div class="container ctaband__inner">
+      <div data-reveal>
+        <h2>Thinking of a move?</h2>
+        <p>Start with a free, confidential call. No pressure, no obligation.</p>
+      </div>
+      <div class="ctaband__actions" data-reveal>
+        <a href="tel:+14168760773" class="btn btn--primary" data-magnetic>Call 416.876.0773</a>
+        <a href="contact.html" class="btn btn--ghost" data-magnetic>Send a message</a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__top">
+        <div class="footer__brand">
+          <span class="brand__mark" aria-hidden="true">◆</span>
+          <div><strong>Shawan Sagar</strong><span>Real Estate Sales Representative</span></div>
+        </div>
+        <nav class="footer__nav" aria-label="Site"><div><h4>Buying</h4><ul><li><a href="buyers.html">Working with buyers</a></li><li><a href="first-time-buyers.html">First-time buyers</a></li><li><a href="mortgages.html">Mortgages &amp; lenders</a></li><li><a href="relocating-to-the-gta.html">Relocating to the GTA</a></li><li><a href="investment-properties.html">Investment properties</a></li></ul></div><div><h4>Selling</h4><ul><li><a href="sellers.html">Working with sellers</a></li><li><a href="market-evaluation.html">Free market evaluation</a></li><li><a href="pricing-your-home.html">Pricing your home</a></li><li><a href="staging.html">Staging</a></li><li><a href="selling-process.html">The selling process</a></li><li><a href="negotiation.html">Negotiation</a></li><li><a href="closing-day.html">Closing day</a></li><li><a href="downsizing.html">Downsizing</a></li><li><a href="moving-checklist.html">Moving checklist</a></li></ul></div><div><h4>Areas served</h4><ul><li><a href="area-toronto.html">Toronto</a></li><li><a href="area-east-york.html">East York</a></li><li><a href="area-scarborough.html">Scarborough</a></li><li><a href="area-north-york.html">North York</a></li><li><a href="area-etobicoke.html">Etobicoke</a></li><li><a href="area-markham.html">Markham</a></li><li><a href="area-pickering.html">Pickering</a></li><li><a href="area-ajax.html">Ajax</a></li><li><a href="area-mississauga.html">Mississauga</a></li><li><a href="area-brampton.html">Brampton</a></li></ul></div><div><h4>More</h4><ul><li><a href="about.html">About Shawan</a></li><li><a href="how-it-works.html">How it works</a></li><li><a href="homes.html">Homes for sale</a></li><li><a href="faq.html">Common questions</a></li><li><a href="testimonials.html">Testimonials</a></li><li><a href="contact.html">Contact</a></li></ul></div></nav>
+      </div>
+      <p class="footer__meta">HomeLife Today Realty Ltd., Brokerage · Toronto · Independently owned and operated. Not intended to solicit buyers or sellers currently under contract with a brokerage.</p>
+      <p class="footer__copy">© <span id="year">2026</span> Shawan Sagar. All rights reserved. · Direct 416.876.0773 · Office 416.298.3200 · shawanibs@gmail.com</p>
+    </div>
+  </footer>
+
+  <a href="tel:+14168760773" class="fab" aria-label="Call Shawan Sagar">
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M6.6 10.8a15.5 15.5 0 006.6 6.6l2.2-2.2a1 1 0 011-.24 11.4 11.4 0 003.6.58 1 1 0 011 1V20a1 1 0 01-1 1A17 17 0 013 4a1 1 0 011-1h3.5a1 1 0 011 1 11.4 11.4 0 00.58 3.6 1 1 0 01-.24 1z" fill="currentColor"/></svg>
+    <span class="fab__ring" aria-hidden="true"></span>
+  </a>
+
+  <div class="lightbox" id="lightbox" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Project details">
+    <div class="lightbox__panel">
+      <button class="lightbox__close" id="lightboxClose" aria-label="Close">✕</button>
+      <div class="lightbox__media" id="lightboxStage"></div>
+      <div class="lightbox__info" id="lightboxInfo"></div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var b = "?t=" + Date.now();
+      document.write('<script src="js/config.js' + b + '"><\/script>');
+      document.write('<script src="js/listings.js' + b + '"><\/script>');
+      document.write('<script src="js/main.js' + b + '"><\/script>');
+    })();
+  </script>
+</body>
+</html>

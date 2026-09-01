@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.claude/
+*.snapshot.js
+*.backup.js
+listings.js.txt
+.DS_Store
+Thumbs.db
