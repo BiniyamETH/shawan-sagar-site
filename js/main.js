@@ -14,7 +14,9 @@
   var y = $("#year"); if (y) y.textContent = new Date().getFullYear();
 
   /* ---------------------------------------------------------------- media from config */
-  applyMedia();
+  // isolated in its own try/catch: a hero/media failure must never take the
+  // rest of the page's JS (nav, reveal animations, form, FAQ...) down with it
+  try { applyMedia(); } catch (e) { if (window.console) console.error("applyMedia failed:", e); }
 
   function applyMedia() {
     var cfg = window.SITE_MEDIA || {};
@@ -52,6 +54,10 @@
           v.muted = true; v.loop = true; v.playsInline = true;
           v.playbackRate = v.defaultPlaybackRate = speed;
           v.addEventListener("loadedmetadata", function () { try { this.playbackRate = speed; } catch (e) {} });
+          v.addEventListener("error", function () {   // clip 404s / CDN blocks it — fall back to the still poster
+            slide.classList.add("is-broken");
+            if (item.poster) slide.style.backgroundImage = "url('" + esc(item.poster) + "')";
+          });
           v.preload = i === 0 ? "auto" : "none";
           if (item.poster) v.poster = item.poster;
           slide.dataset.video = item.video;
@@ -588,7 +594,7 @@
         "Looking to: " + d.intent + "\n" +
         "Area: " + (d.area || "—") + "\n\n" +
         (d.message || "");
-      window.location.href = "mailto:shawanibs@gmail.com?subject=" +
+      window.location.href = "mailto:Infodhakaauto@gmail.com?subject=" +
         encodeURIComponent("Free evaluation request — " + d.name) +
         "&body=" + encodeURIComponent(body);
       setStatus("Opening your email app to send the request…", "ok");

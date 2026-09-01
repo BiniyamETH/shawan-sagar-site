@@ -1,7 +1,7 @@
 # /assets — your photos & videos
 
 Put your own image and video files in this folder, then point the site at them
-from **`../js/config.js`** (the only file you need to edit).
+from **`../js/config.js`** (the only file you need to edit for media).
 
 ## Example
 
@@ -10,32 +10,29 @@ from **`../js/config.js`** (the only file you need to edit).
    ```
    assets/
      hero-skyline.mp4
-     shawan-headshot.jpg
      listing-northyork-1.jpg
-     condo-tour.mp4
    ```
 
 2. Open `js/config.js` and reference them:
 
    ```js
-   heroVideo:  "assets/hero-skyline.mp4",
-   aboutImage: "assets/shawan-headshot.jpg",
-
-   gallery: [
-     { type: "image", src: "assets/listing-northyork-1.jpg", tag: "Sold", caption: "Detached · North York" },
-     { type: "video", src: "assets/condo-tour.mp4", poster: "assets/listing-northyork-1.jpg", tag: "Walkthrough", caption: "Condo tour · Downtown" }
-   ]
+   heroSlides: [
+     { video: "assets/hero-skyline.mp4", poster: "assets/listing-northyork-1.jpg" },
+   ],
+   enquireBg: "assets/listing-northyork-1.jpg",
    ```
 
 3. Save and refresh the browser.
 
+Homes for sale (photos + video) are a separate file — see `js/listings.js`, or
+edit them visually through `admin.html`.
+
 ## Recommended sizes
 
 | Slot        | Type   | Size (px)      | Notes                                  |
-|-------------|--------|----------------|----------------------------------------|
-| heroVideo   | .mp4   | 1920×1080      | short loop, no audio needed, < ~10 MB  |
-| aboutImage  | .jpg   | 900×1100 (tall)| vertical portrait                      |
-| gallery img | .jpg   | 900×675 (4:3)  | landscape                              |
-| gallery vid | .mp4   | 1280×960 (4:3) | keep short                             |
+|-------------|--------|----------------|-----------------------------------------|
+| heroSlides video | .mp4 | 1920×1080  | short loop, no audio needed, < ~10 MB  |
+| heroSlides poster | .jpg | 1600×900  | shown instantly while the clip loads, and as the fallback if it fails |
+| enquireBg   | .jpg   | 1600×900 or wider | sits dark and low-contrast behind the form |
 
 Any `https://` link works too — you don't have to download files locally.

@@ -5,7 +5,7 @@ Sales Representative (HomeLife Today Realty Ltd., Brokerage — Toronto)**.
 
 - **Design** modelled on <https://insync-landingpage.vercel.app/>
 - **Copy & contact details** based on <https://biniyameth.github.io/Shawan-Sagar/>
-- Pure HTML / CSS / vanilla JS. One tiny Python script stamps out the pages.
+- Pure HTML / CSS / vanilla JS. No build step — every `.html` file is hand-edited directly.
 
 ---
 
@@ -42,15 +42,9 @@ Every page shares one header, footer (full site map), and set of effects.
 
 ### Editing pages
 
-All page **text** lives in **`build.py`** (and the home page body in
-`partials/home-main.html`). Edit, then regenerate:
-
-```
-python build.py        # rewrites all 34 .html files
-```
-
-Don't hand-edit the generated `.html` files — your changes are overwritten on the
-next build. `css/`, `js/` and `partials/` are never touched by the build.
+There's no generator — each `.html` file is the real, final page. Edit it
+directly and refresh the browser; every page shares `css/styles.css` and
+`js/main.js`, so a shared style/behaviour change is one edit in those files.
 
 ---
 
@@ -112,14 +106,15 @@ Netlify only removes that last upload step (see below) — it isn't required.
 
 | Setting        | What it controls                                                        |
 |----------------|-----------------------------------------------------------------------|
-| `heroSlides[]` | the hero background — cross-fades through this list of **10 houses**, ~6s each, slow zoom |
+| `heroSlides[]` | the hero background — cross-fades through this list of house **video clips** (or photos), `heroSlideSeconds` each, slow zoom |
+| `heroSlideSeconds` / `heroClipSpeed` | how long each clip stays (default 7s) and its playback rate (default 1.5×) |
 | `heroImage` / `heroVideo` | only used if `heroSlides` is emptied out (single photo, optional clip) |
 | `enquireBg`    | **background photo** behind the "Get your free evaluation" form       |
-| `aboutImage`   | the tall portrait next to "Real estate, done properly."              |
 | `formEndpoint` | where the enquiry form sends (`""` = opens the visitor's email app)  |
 
 `heroSlides` entries are a photo URL or `{ video, poster }` for a clip — files in
-`/assets` or any `https://` link. **Use clips of 10 seconds or more.**
+`/assets` or any `https://` link. The `poster` shows instantly while its clip loads,
+and also becomes the fallback if the clip ever fails to load.
 
 > **Editing note:** `config.js` loads with a cache-buster, so a normal refresh
 > shows your changes. If you ever still see the old media, hard-refresh (Ctrl+Shift+R).
@@ -128,7 +123,7 @@ Netlify only removes that last upload step (see below) — it isn't required.
 
 The "07 — Enquire" section has a real form (name, email, phone, buy/sell,
 area, message). Out of the box, submitting it opens the visitor's email app
-with everything pre-filled, addressed to `shawanibs@gmail.com` — no backend
+with everything pre-filled, addressed to `Infodhakaauto@gmail.com` — no backend
 needed. To receive submissions straight to an inbox instead, make a free
 [Formspree](https://formspree.io) form and set `formEndpoint` in `js/config.js`
 to its URL.
@@ -137,11 +132,11 @@ to its URL.
 
 ## Change the text
 
-Page copy lives in **`build.py`** (and `partials/home-main.html` for the home
-page) — edit and run `python build.py`. Phone / email appear as:
+Page copy is hand-edited straight in each `.html` file — no generator, no
+regeneration step. Phone / email appear as:
 
 - `tel:+14168760773` and the visible `416.876.0773`
-- `mailto:shawanibs@gmail.com`
+- `mailto:Infodhakaauto@gmail.com`
 - office `416.298.3200`, fax `416.298.3440`
 
 ---
@@ -173,11 +168,9 @@ instead of email/Formspree.
 
 ```
 admin.html            form to add/edit the homes for sale (private, works offline)
-build.py              generates the 34 .html pages (run: python build.py)
-partials/home-main.html   the home page body
-index.html + 33 more .html   generated — don't hand-edit
+index.html + 33 more .html   the real pages — hand-edit directly
 css/styles.css         design system, layout, animations
-js/config.js           hero / about / form media
+js/config.js           hero / enquire-background / form media
 js/listings.js         >>> the homes for sale <<<
 js/main.js             reveals, particles, cursor, tilt, carousel, form
 assets/                drop your own images / videos here

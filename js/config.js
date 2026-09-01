@@ -31,12 +31,10 @@ window.SITE_MEDIA = {
   heroSlideSeconds: 7,
   heroClipSpeed: 1.5,
   heroSlides: [
-    { video: "https://assets.mixkit.co/videos/8190/8190-720.mp4",   poster: "https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=1600&q=80" }, // villas on a sunny day
-    { video: "https://assets.mixkit.co/videos/8630/8630-720.mp4",   poster: "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=1600&q=80" }, // country house with pool at sunset
-    { video: "https://assets.mixkit.co/videos/48394/48394-720.mp4", poster: "https://images.unsplash.com/photo-1449844908441-8829872d2607?auto=format&fit=crop&w=1600&q=80" }, // flying over quiet suburban streets
-    { video: "https://assets.mixkit.co/videos/24945/24945-720.mp4", poster: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=80" }, // modern houses at the edge of town
-    { video: "https://assets.mixkit.co/videos/8603/8603-720.mp4",   poster: "https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?auto=format&fit=crop&w=1600&q=80" }, // aerial over a manor house + orchard
-    { video: "https://assets.mixkit.co/videos/27543/27543-720.mp4", poster: "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?auto=format&fit=crop&w=1600&q=80" }  // modern house on the beach
+    { video: "https://assets.mixkit.co/videos/24945/24945-720.mp4", poster: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=80" }, // elegant houses on a quiet residential street
+    { video: "https://assets.mixkit.co/videos/20972/20972-720.mp4", poster: "https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?auto=format&fit=crop&w=1600&q=80" }, // grand stone & brick house
+    { video: "https://assets.mixkit.co/videos/25063/25063-720.mp4", poster: "https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=1600&q=80" }, // charming house facade, warm tones
+    { video: "https://assets.mixkit.co/videos/27543/27543-720.mp4", poster: "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?auto=format&fit=crop&w=1600&q=80" }  // modern house exterior
   ],
   //  prefer stills? just drop in photo URLs instead, e.g.:
   //  "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=1600&q=80",  // white 2-storey, big lawn

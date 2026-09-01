@@ -162,7 +162,7 @@ h1,h2,h3,.brand__text{font-family:'Space Grotesk','Space Grotesk',sans-serif;fon
    ============================================================= */
 .hero{position:relative;z-index:2;min-height:100vh;min-height:100svh;display:flex;flex-direction:column;justify-content:center;padding-top:120px;padding-bottom:80px;overflow:hidden}
 
-/* ---- hero background slideshow (10 houses) ---- */
+/* ---- hero background slideshow (house video clips, cfg.heroSlides) ---- */
 .hero__slides{position:absolute;inset:0;z-index:0;overflow:hidden;background:#0a0e1a 50% 50%/cover no-repeat}
 .hero__slide{position:absolute;inset:0;opacity:0;transition:opacity var(--fade-ms,1.4s) ease-in-out;filter:saturate(.94) brightness(.78) contrast(1.03)}
 .hero__slide.is-active{opacity:1}
@@ -171,6 +171,9 @@ h1,h2,h3,.brand__text{font-family:'Space Grotesk','Space Grotesk',sans-serif;fon
 .hero__slide.is-active .hero__slide-img,
 .hero__slide.is-active video{animation:heroKen var(--slide-ms,10s) linear forwards}
 @keyframes heroKen{from{transform:scale(1.04)}to{transform:scale(1.09)}}
+/* a clip that fails to load (dead link, CDN block) falls back to its still poster */
+.hero__slide.is-broken{background-position:center;background-size:cover}
+.hero__slide.is-broken video{display:none}
 
 .hero__bg{position:absolute;inset:0;z-index:0;background:#0a0e1a 50% 40%/cover no-repeat;opacity:.4;filter:saturate(.85) brightness(.62) contrast(1.05);animation:heroZoom 26s ease-in-out infinite alternate}
 @keyframes heroZoom{from{transform:scale(1)}to{transform:scale(1.08)}}
