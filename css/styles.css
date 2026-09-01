@@ -468,6 +468,9 @@ a.contact__card:hover{border-color:var(--c1);box-shadow:0 20px 50px -20px var(--
 .footer__nav a:hover{color:#fff}
 .footer__meta{font-size:.8rem;color:var(--muted);max-width:80ch}
 .footer__copy{font-size:.78rem;color:var(--muted)}
+.footer__credit{font-size:.72rem;color:var(--muted);opacity:.72;margin-top:-14px}
+.footer__credit a{color:inherit;text-decoration:underline;text-underline-offset:2px;transition:color .2s}
+.footer__credit a:hover{color:#fff}
 
 /* ---- active nav item ---- */
 .nav__links a.is-current{color:var(--text)}
