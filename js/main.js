@@ -37,6 +37,8 @@
       if (!wrap || !Array.isArray(list) || !list.length) return false;
 
       var esc = function (u) { return String(u || "").replace(/'/g, "%27"); };
+      var speed = parseFloat(cfg.heroClipSpeed);
+      speed = (isFinite(speed) && speed > 0 ? speed : 1.5);   // video playback rate
       var first = list[0];
       var firstUrl = typeof first === "string" ? first : (first && (first.poster || first.image)) || "";
       if (firstUrl) wrap.style.backgroundImage = "url('" + esc(firstUrl) + "')";
@@ -48,6 +50,8 @@
         if (item && item.video) {
           var v = document.createElement("video");
           v.muted = true; v.loop = true; v.playsInline = true;
+          v.playbackRate = v.defaultPlaybackRate = speed;
+          v.addEventListener("loadedmetadata", function () { try { this.playbackRate = speed; } catch (e) {} });
           v.preload = i === 0 ? "auto" : "none";
           if (item.poster) v.poster = item.poster;
           slide.dataset.video = item.video;
@@ -75,12 +79,21 @@
           delete s.dataset.img;
         }
       };
+      var warm = function (n) {                 // start the next clip buffering ahead of time
+        var s = slides[n];
+        if (s && s._video && !s._video.getAttribute("src") && s.dataset.video) {
+          s._video.preload = "auto";
+          s._video.src = s.dataset.video;
+        }
+      };
       var activate = function (n) {
         var s = slides[n];
         loadImg(n);
         loadImg((n + 1) % slides.length);   // pre-load the next one so the cross-fade is smooth
+        warm((n + 1) % slides.length);
         if (s._video) {
           if (!s._video.getAttribute("src") && s.dataset.video) s._video.src = s.dataset.video;
+          try { s._video.currentTime = 0; s._video.playbackRate = speed; } catch (e) {}
           var pr = s._video.play(); if (pr && pr.catch) pr.catch(function () {});
         }
         s.classList.add("is-active");
@@ -88,13 +101,21 @@
       activate(0);
 
       if (slides.length > 1 && !reduceMotion) {
+        var secs = parseFloat(cfg.heroSlideSeconds);
+        var ms = (isFinite(secs) && secs > 0.25 ? secs : 3) * 1000;
+        // heavy cross-fade overlap so quick swaps read as a dissolve, never a hard cut
+        var fade = Math.round(Math.min(1600, Math.max(ms * 0.8, 260)));
+        // ken-burns zoom always runs long & slow, independent of swap speed — keeps it calm
+        var ken = Math.max(ms * 3, 9000);
+        wrap.style.setProperty("--slide-ms", ken + "ms");       // ken-burns zoom length
+        wrap.style.setProperty("--fade-ms", fade + "ms");       // cross-fade length
         setInterval(function () {
           var cur = slides[idx];
           cur.classList.remove("is-active");
           if (cur._video) cur._video.pause();
           idx = (idx + 1) % slides.length;
           activate(idx);
-        }, 6000);
+        }, ms);
       }
       return true;
     }
@@ -131,13 +152,6 @@
           hv.style.display = "none";
         }
       }
-    }
-
-    // about image
-    var ai = $("#aboutImage");
-    if (ai) {
-      ai.src = cfg.aboutImage || "";
-      ai.addEventListener("error", function () { ai.classList.add("is-broken"); ai.removeAttribute("src"); });
     }
 
     // listings — the homes Shawan is selling (from js/listings.js, or config fallback)
