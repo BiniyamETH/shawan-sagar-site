@@ -69,10 +69,12 @@
           v.muted = true; v.loop = true; v.playsInline = true;
           v.playbackRate = v.defaultPlaybackRate = speed;
           v.addEventListener("loadedmetadata", function () { try { this.playbackRate = speed; } catch (e) {} });
-          v.addEventListener("error", function () {   // clip 404s / CDN blocks it — fall back to the still poster
+          var fallBackToPoster = function () {   // clip 404s, CDN blocks it, or a phone can't decode it
             slide.classList.add("is-broken");
             if (item.poster) slide.style.backgroundImage = "url('" + esc(asset(item.poster)) + "')";
-          });
+          };
+          v.addEventListener("error", fallBackToPoster);
+          slide._fallback = fallBackToPoster;
           v.preload = i === 0 ? "auto" : "none";
           if (item.poster) v.poster = asset(item.poster);
           slide.dataset.video = item.video;
@@ -116,6 +118,14 @@
           if (!s._video.getAttribute("src") && s.dataset.video) s._video.src = s.dataset.video;
           try { s._video.currentTime = 0; s._video.playbackRate = speed; } catch (e) {}
           var pr = s._video.play(); if (pr && pr.catch) pr.catch(function () {});
+          // watchdog: if no frame is ready a few seconds after this slide goes
+          // live (a phone that silently fails to decode never fires "error"),
+          // drop to the still poster instead of showing an empty dark panel.
+          clearTimeout(s._watch);
+          s._watch = setTimeout(function () {
+            if (s.classList.contains("is-active") && !s.classList.contains("is-broken") &&
+                s._video.readyState < 2 && s._fallback) s._fallback();
+          }, 7000);
         }
         s.classList.add("is-active");
       };

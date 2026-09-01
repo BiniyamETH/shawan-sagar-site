@@ -36,7 +36,7 @@ window.SITE_MEDIA = {
   heroClipSpeed: 1.5,
   heroSlides: [
     { video: "assets/hero-1-residential-street.mp4", poster: "assets/hero-1-poster.jpg" }, // elegant houses on a quiet residential street
-    { video: "assets/hero-2-stone-brick-house.mp4", poster: "assets/hero-2-poster.jpg" }, // grand stone & brick house
+    { video: "assets/hero-2-village-homes.mp4",     poster: "assets/hero-2-poster.jpg" }, // homes along a sunlit village green, clear sky
     { video: "assets/hero-3-house-facade.mp4",      poster: "assets/hero-3-poster.jpg" }, // charming house facade, warm tones
     { video: "assets/hero-4-modern-exterior.mp4",   poster: "assets/hero-4-poster.jpg" }  // modern house exterior
   ],
